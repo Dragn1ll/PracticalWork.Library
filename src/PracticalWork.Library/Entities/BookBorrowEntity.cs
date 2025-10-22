@@ -1,7 +1,7 @@
 ﻿using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Enums;
 
-namespace PracticalWork.Library.Data.PostgreSql.Entities;
+namespace PracticalWork.Library.Entities;
 
 /// <summary>
 /// Выдачи книги на руки читателю

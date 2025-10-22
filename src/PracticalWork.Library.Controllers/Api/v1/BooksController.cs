@@ -19,13 +19,13 @@ public class BooksController : Controller
         _bookService = bookService;
     }
 
-    /// <summary> Создание новой книги</summary>
+    /// <summary>Создание новой книги</summary>
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CreateBookResponse), 200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public async Task<IActionResult> CreateOrder(CreateBookRequest request)
+    public async Task<IActionResult> CreateBook(CreateBookRequest request)
     {
         var result = await _bookService.CreateBook(request.ToBook());
 

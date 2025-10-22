@@ -1,6 +1,6 @@
 ﻿using PracticalWork.Library.Abstractions.Storage;
 
-namespace PracticalWork.Library.Data.PostgreSql.Entities;
+namespace PracticalWork.Library.Entities;
 
 /// <summary>
 /// Карточка читателя
