@@ -44,6 +44,8 @@ public sealed class BookService : IBookService
                 throw new ArgumentException("Книга находится в архиве.");
             }
             
+            // todo инвалидацию кэша связанных данных в Redis 
+            
             await _bookRepository.UpdateBook(bookId, b =>
             {
                 b.Title = book.Title;
@@ -68,6 +70,8 @@ public sealed class BookService : IBookService
             {
                 throw new ArgumentException("Книга уже переведена в архив.");
             }
+            
+            // todo инвалидацию кэша списков книг в Redis 
             
             book.Archive();
             
@@ -101,6 +105,8 @@ public sealed class BookService : IBookService
         try
         {
             // todo добавление в MinIO
+            
+            // todo инвалидацию кэша деталей книг в Redis 
             await _bookRepository.UpdateBook(bookId, b =>
             {
                 b.CoverImagePath = String.Empty; // временная заглушка
