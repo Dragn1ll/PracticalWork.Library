@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
+using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
@@ -78,7 +79,7 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.GetBooks"/>
-    public async Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, int page,
+    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page,
         int pageSize)
     {
         try

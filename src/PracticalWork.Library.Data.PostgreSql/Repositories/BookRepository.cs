@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Data.PostgreSql.Entities;
+using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
@@ -74,14 +75,15 @@ public sealed class BookRepository : IBookRepository
     }
 
     /// <inheritdoc cref="IBookRepository.GetBooks"/>
-    public async Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, 
+    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
         int page, int pageSize)
     {
         return await _appDbContext.Books.AsNoTracking()
                                     .Where(b => b.Authors.Contains(author) && b.Status == status)
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
-                                    .Select(e => ConvertToBook(e))
+                                    .Select(e => new BookListDto(e.Title, e.Authors,  e.Description, 
+                                        e.Year, ConvertToBookCategory(e), e.Status, e.CoverImagePath))
                                     .Where(b => b.Category == category)
                                     .ToListAsync();
     }
@@ -96,14 +98,19 @@ public sealed class BookRepository : IBookRepository
             Year = entity.Year,
             Status = entity.Status,
             CoverImagePath = entity.CoverImagePath,
-            Category = entity switch
-            {
-                ScientificBookEntity => BookCategory.ScientificBook,
-                EducationalBookEntity => BookCategory.EducationalBook,
-                FictionBookEntity => BookCategory.FictionBook,
-                _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
-            },
+            Category = ConvertToBookCategory(entity),
             IsArchived = entity.Status == BookStatus.Archived
+        };
+    }
+
+    private BookCategory ConvertToBookCategory(AbstractBookEntity entity)
+    {
+        return entity switch
+        {
+            ScientificBookEntity => BookCategory.ScientificBook,
+            EducationalBookEntity => BookCategory.EducationalBook,
+            FictionBookEntity => BookCategory.FictionBook,
+            _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
         };
     }
 }

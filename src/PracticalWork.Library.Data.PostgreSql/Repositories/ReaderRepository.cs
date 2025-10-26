@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
@@ -71,7 +72,10 @@ public class ReaderRepository : IReaderRepository
             throw new ArgumentException($"Отсутствует читатель с идентификатором: {readerId}");
         }
 
-        return entity.BorrowedRecords.Select(b => new BorrowedBookDto(b.Id, b.BookId, b.DueDate)).ToList();
+        return entity.BorrowedRecords
+            .Where(b => b.Status == BookIssueStatus.Issued)
+            .Select(b => new BorrowedBookDto(b.BookId, b.BorrowDate, b.DueDate))
+            .ToList();
     }
 
     /// <inheritdoc cref="IReaderRepository.UpdateReader"/>

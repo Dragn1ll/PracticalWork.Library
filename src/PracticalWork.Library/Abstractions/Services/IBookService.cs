@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
@@ -33,7 +34,7 @@ public interface IBookService
     /// Получение списка книг
     /// </summary>
     /// <returns>Список книг</returns>
-    Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
+    Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
 
     /// <summary>
     /// Добавление деталей книги

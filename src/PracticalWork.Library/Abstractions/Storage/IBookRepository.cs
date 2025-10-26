@@ -1,4 +1,5 @@
-﻿using PracticalWork.Library.Enums;
+﻿using PracticalWork.Library.Dto;
+using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Abstractions.Storage;
@@ -38,5 +39,5 @@ public interface IBookRepository
     /// <param name="page">Номер страницы</param>
     /// <param name="pageSize">Размер страниц</param>
     /// <returns>Список книг</returns>
-    Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
+    Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
 }

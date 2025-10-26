@@ -2,19 +2,19 @@ namespace PracticalWork.Library.Dto;
 
 public sealed class BorrowedBookDto
 {
-    /// <summary>Идентификатор возврата книги</summary>
-    public Guid BorrowId { get; set; }
-    
     /// <summary>Идентификатор книги</summary>
     public Guid BookId { get; set; }
+    
+    /// <summary>дата выдачи</summary>
+    public DateOnly BorrowDate { get; set; }
     
     /// <summary>Срок возврата книги</summary>
     public DateOnly DueDate { get; set; }
 
-    public BorrowedBookDto(Guid borrowId, Guid bookId, DateOnly dueDate)
+    public BorrowedBookDto(Guid bookId,DateOnly borrowDate,  DateOnly dueDate)
     {
-        BorrowId = borrowId;
         BookId = bookId;
+        BorrowDate = borrowDate;
         DueDate = dueDate;
     }
 }
