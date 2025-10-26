@@ -24,4 +24,17 @@ public sealed class Borrow
     
     /// <summary>Статус</summary>
     public BookIssueStatus Status { get; set; }
+
+    public void ReturnBook()
+    {
+        if (Status != BookIssueStatus.Issued)
+        {
+            throw new InvalidOperationException("Книга уже возвращена в библиотеку!");
+        }
+
+        ReturnDate = DateOnly.FromDateTime(DateTime.Now);
+        Status = ReturnDate < DueDate 
+            ? BookIssueStatus.Returned 
+            : BookIssueStatus.Overdue;
+    }
 }
