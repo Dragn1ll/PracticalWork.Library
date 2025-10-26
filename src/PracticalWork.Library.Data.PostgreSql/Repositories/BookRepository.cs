@@ -40,8 +40,8 @@ public sealed class BookRepository : IBookRepository
         return entity.Id;
     }
 
-    /// <inheritdoc cref="IBookRepository.GetBook"/>
-    public async Task<Book> GetBook(Guid bookId)
+    /// <inheritdoc cref="IBookRepository.GetBookById"/>
+    public async Task<Book> GetBookById(Guid bookId)
     {
         var entity = await _appDbContext.Books.FindAsync(bookId);
 
@@ -51,6 +51,53 @@ public sealed class BookRepository : IBookRepository
         }
         
         return ConvertToBook(entity);
+    }
+
+    /// <inheritdoc cref="IBookRepository.GetBookIdByTitle"/>
+    public async Task<Guid> GetBookIdByTitle(string title)
+    {
+        var entity = await _appDbContext.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Title == title);
+
+        if (entity == null)
+        {
+            throw new ArgumentException($"Отсутствует книга с названием: {title}");
+        }
+        
+        return entity.Id;
+    }
+
+    /// <inheritdoc cref="IBookRepository.GetBooks"/>
+    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
+        int page, int pageSize)
+    {
+        return await _appDbContext.Books.AsNoTracking()
+            .Where(b => b.Authors.Contains(author) && b.Status == status)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, 
+                e.Year, ConvertToBookCategory(e), e.Status, e.CoverImagePath))
+            .Where(b => b.Category == category)
+            .ToListAsync();
+    }
+
+    /// <inheritdoc cref="IBookRepository.GetLibraryBooks"/>
+    public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
+        int page, int pageSize)
+    {
+        Predicate<AbstractBookEntity> predicate = b => true;
+        if (availableOnly)
+        {
+             predicate = b => b.Status == BookStatus.Available;
+        }
+        
+        return await _appDbContext.Books.AsNoTracking()
+            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived && predicate(b))
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(e => new LibraryBookDto(e.Id, e.Title, e.Authors, e.Year, ConvertToBookCategory(e), 
+                e.Status))
+            .Where(b => b.Category == category)
+            .ToListAsync();
     }
 
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>
@@ -72,20 +119,6 @@ public sealed class BookRepository : IBookRepository
         
         _appDbContext.Update(entity);
         await _appDbContext.SaveChangesAsync();
-    }
-
-    /// <inheritdoc cref="IBookRepository.GetBooks"/>
-    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
-        int page, int pageSize)
-    {
-        return await _appDbContext.Books.AsNoTracking()
-                                    .Where(b => b.Authors.Contains(author) && b.Status == status)
-                                    .Skip((page - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .Select(e => new BookListDto(e.Title, e.Authors,  e.Description, 
-                                        e.Year, ConvertToBookCategory(e), e.Status, e.CoverImagePath))
-                                    .Where(b => b.Category == category)
-                                    .ToListAsync();
     }
 
     private Book ConvertToBook(AbstractBookEntity entity)
