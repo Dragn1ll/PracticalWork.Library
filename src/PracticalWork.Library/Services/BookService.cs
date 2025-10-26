@@ -28,7 +28,7 @@ public sealed class BookService : IBookService
         }
         catch (Exception ex)
         {
-            throw new BookServiceException("Ошибка создание книги!", ex);
+            throw new BookServiceException("Ошибка создания книги!", ex);
         }
     }
 
