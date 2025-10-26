@@ -37,7 +37,7 @@ public sealed class BookService : IBookService
     {
         try
         {
-            var bookEntity = await _bookRepository.GetBook(bookId);
+            var bookEntity = await _bookRepository.GetBookById(bookId);
 
             if (bookEntity.IsArchived)
             {
@@ -59,7 +59,7 @@ public sealed class BookService : IBookService
     {
         try
         {
-            var book = await _bookRepository.GetBook(bookId);
+            var book = await _bookRepository.GetBookById(bookId);
 
             if (book.IsArchived)
             {
@@ -98,7 +98,7 @@ public sealed class BookService : IBookService
     {
         try
         {
-            var book = await _bookRepository.GetBook(bookId);
+            var book = await _bookRepository.GetBookById(bookId);
             
             // временная заглушка
             book.UpdateDetails(String.Empty, description);
