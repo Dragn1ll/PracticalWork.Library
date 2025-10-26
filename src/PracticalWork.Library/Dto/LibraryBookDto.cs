@@ -2,7 +2,7 @@ using PracticalWork.Library.Enums;
 
 namespace PracticalWork.Library.Dto;
 
-public sealed class BookListDto
+public class LibraryBookDto
 {
     /// <summary>Идентификатор книги</summary>
     public Guid BookId { get; set; }
@@ -12,10 +12,7 @@ public sealed class BookListDto
 
     /// <summary>Авторы</summary>
     public IReadOnlyList<string> Authors { get; set; }
-
-    /// <summary>Краткое описание книги</summary>
-    public string Description { get; set; }
-
+    
     /// <summary>Год издания</summary>
     public int Year { get; set; }
 
@@ -25,19 +22,14 @@ public sealed class BookListDto
     /// <summary>Статус</summary>
     public BookStatus Status { get; set; }
 
-    /// <summary>Путь к изображению обложки</summary>
-    public string CoverImagePath { get; set; }
-
-    public BookListDto(Guid bookId, string title, IReadOnlyList<string> authors, string description, int year,
-        BookCategory category, BookStatus status, string coverImagePath)
+    public LibraryBookDto(Guid bookId, string title, IReadOnlyList<string> authors, int year, 
+        BookCategory category, BookStatus status)
     {
         BookId = bookId;
         Title = title;
         Authors = authors;
-        Description = description;
         Year = year;
         Category = category;
         Status = status;
-        CoverImagePath = coverImagePath;
     }
 }
