@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PracticalWork.Library.Entities;
+using PracticalWork.Library.Data.PostgreSql.Entities;
 
 namespace PracticalWork.Library.Data.PostgreSql.Configurations;
 

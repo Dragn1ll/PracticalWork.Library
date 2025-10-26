@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using PracticalWork.Library.Entities;
+﻿using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Abstractions.Storage;
@@ -27,15 +26,17 @@ public interface IBookRepository
     /// Обновить данные книги
     /// </summary>
     /// <param name="bookId">Идентификатор книги</param>
-    /// <param name="updateAction">Изменения данных книги</param>
-    Task UpdateBook(Guid bookId, Action<AbstractBookEntity> updateAction);
-    
+    /// <param name="book">Книга</param>
+    Task UpdateBook(Guid bookId, Book book);
+
     /// <summary>
     /// Получить список книг
     /// </summary>
+    /// <param name="status">Статус книги</param>
+    /// <param name="category">Категория книги</param>
+    /// <param name="author">Автор книги</param>
     /// <param name="page">Номер страницы</param>
     /// <param name="pageSize">Размер страниц</param>
-    /// <param name="predicate">Условия, по которому отбираются книги</param>
     /// <returns>Список книг</returns>
-    Task<ICollection<Book>> GetBooks(int page, int pageSize, Expression<Func<AbstractBookEntity, bool>> predicate);
+    Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
-using PracticalWork.Library.Entities;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
@@ -46,12 +45,7 @@ public sealed class BookService : IBookService
             
             // todo инвалидацию кэша связанных данных в Redis 
             
-            await _bookRepository.UpdateBook(bookId, b =>
-            {
-                b.Title = book.Title;
-                b.Authors = book.Authors;
-                b.Year = book.Year;
-            });
+            await _bookRepository.UpdateBook(bookId, book);
         }
         catch (Exception ex)
         {
@@ -75,7 +69,7 @@ public sealed class BookService : IBookService
             
             book.Archive();
             
-            await _bookRepository.UpdateBook(bookId, b => b.Status = BookStatus.Archived);
+            await _bookRepository.UpdateBook(bookId, book);
         }
         catch (Exception ex)
         {
@@ -90,8 +84,7 @@ public sealed class BookService : IBookService
         try
         {
             // todo добавить кэширование через Redis
-            return await _bookRepository.GetBooks(page, pageSize, b => 
-                b.Status == status && b.Authors.Contains(author) && b.GetType() == ConvertToBookType(category));
+            return await _bookRepository.GetBooks(status, category, author, page, pageSize);
         }
         catch (Exception ex)
         {
@@ -104,29 +97,20 @@ public sealed class BookService : IBookService
     {
         try
         {
+            var book = await _bookRepository.GetBook(bookId);
+            
+            // временная заглушка
+            book.UpdateDetails(String.Empty, description);
+            
             // todo добавление в MinIO
             
             // todo инвалидацию кэша деталей книг в Redis 
-            await _bookRepository.UpdateBook(bookId, b =>
-            {
-                b.CoverImagePath = String.Empty; // временная заглушка
-                b.Description = description;
-            });
+            
+            await _bookRepository.UpdateBook(bookId, book);
         }
         catch (Exception ex)
         {
             throw new BookServiceException("Ошибка добавления деталей книги!", ex);
         }
-    }
-
-    private Type ConvertToBookType(BookCategory category)
-    {
-        return category switch
-        {
-            BookCategory.ScientificBook => typeof(ScientificBookEntity),
-            BookCategory.EducationalBook => typeof(EducationalBookEntity),
-            BookCategory.FictionBook => typeof(FictionBookEntity),
-            _ => throw new ArgumentException($"Неподдерживаемая категория книги: {category}", nameof(category))
-        };
     }
 }

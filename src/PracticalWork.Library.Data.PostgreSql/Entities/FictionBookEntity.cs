@@ -1,4 +1,4 @@
-﻿namespace PracticalWork.Library.Entities;
+﻿namespace PracticalWork.Library.Data.PostgreSql.Entities;
 
 /// <summary>
 /// Художественная литература

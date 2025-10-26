@@ -1,7 +1,6 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage;
-using PracticalWork.Library.Entities;
+using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
@@ -54,7 +53,7 @@ public sealed class BookRepository : IBookRepository
     }
 
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>
-    public async Task UpdateBook(Guid bookId, Action<AbstractBookEntity> updateAction)
+    public async Task UpdateBook(Guid bookId, Book book)
     {
         var entity = await _appDbContext.Books.FindAsync(bookId);
 
@@ -63,21 +62,27 @@ public sealed class BookRepository : IBookRepository
             throw new ArgumentException($"Отсутствует книга с идентификатором: {bookId}");
         }
         
-        updateAction(entity);
+        entity.Title = book.Title;
+        entity.Authors = book.Authors;
+        entity.Description = book.Description;
+        entity.Year = book.Year;
+        entity.Status = book.Status;
+        entity.CoverImagePath = book.CoverImagePath;
         
         _appDbContext.Update(entity);
         await _appDbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc cref="IBookRepository.GetBooks"/>
-    public async Task<ICollection<Book>> GetBooks(int page, int pageSize, 
-        Expression<Func<AbstractBookEntity, bool>> predicate)
+    public async Task<ICollection<Book>> GetBooks(BookStatus status, BookCategory category, string author, 
+        int page, int pageSize)
     {
-        return await _appDbContext.Books
-                                    .Where(predicate)
+        return await _appDbContext.Books.AsNoTracking()
+                                    .Where(b => b.Authors.Contains(author) && b.Status == status)
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
                                     .Select(e => ConvertToBook(e))
+                                    .Where(b => b.Category == category)
                                     .ToListAsync();
     }
 

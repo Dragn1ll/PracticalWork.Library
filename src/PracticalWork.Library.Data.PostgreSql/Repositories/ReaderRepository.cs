@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage;
+using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Dto;
-using PracticalWork.Library.Entities;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
