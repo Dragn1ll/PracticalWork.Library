@@ -1,4 +1,4 @@
-﻿namespace PracticalWork.Library.Abstractions.Storage;
+﻿namespace PracticalWork.Library.Abstractions.Storage.Entity;
 
 /// <summary>
 /// Базовый класс для всех сущностей

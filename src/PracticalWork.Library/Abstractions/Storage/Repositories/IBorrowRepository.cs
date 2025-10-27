@@ -1,6 +1,6 @@
 using PracticalWork.Library.Models;
 
-namespace PracticalWork.Library.Abstractions.Storage;
+namespace PracticalWork.Library.Abstractions.Storage.Repositories;
 
 /// <summary>
 /// Репозиторий для записей выдачи книг

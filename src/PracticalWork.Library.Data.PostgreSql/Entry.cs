@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PracticalWork.Library.Abstractions.Storage;
+using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
 
 namespace PracticalWork.Library.Data.PostgreSql;

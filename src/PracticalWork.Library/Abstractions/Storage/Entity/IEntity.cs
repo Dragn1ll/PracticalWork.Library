@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PracticalWork.Library.Abstractions.Storage;
+namespace PracticalWork.Library.Abstractions.Storage.Entity;
 
 public interface IEntity
 {

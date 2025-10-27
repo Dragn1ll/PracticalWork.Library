@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PracticalWork.Library.Abstractions.Services;
-using PracticalWork.Library.Abstractions.Storage;
+using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;

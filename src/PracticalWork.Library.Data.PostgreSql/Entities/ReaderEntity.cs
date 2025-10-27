@@ -1,4 +1,4 @@
-﻿using PracticalWork.Library.Abstractions.Storage;
+﻿using PracticalWork.Library.Abstractions.Storage.Entity;
 
 namespace PracticalWork.Library.Data.PostgreSql.Entities;
 
