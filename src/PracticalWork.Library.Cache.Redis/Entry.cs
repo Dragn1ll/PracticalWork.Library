@@ -14,6 +14,11 @@ public static class Entry
         var prefix = configuration["App:Redis:RedisCachePrefix"];
 
         // Реализация подключения к Redis и сервисов
+        serviceCollection.AddStackExchangeRedisCache(option =>
+        {
+            option.Configuration = connectionString;
+            option.InstanceName = prefix;
+        });
 
         return serviceCollection;
     }
