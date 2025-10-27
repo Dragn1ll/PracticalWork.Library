@@ -1,20 +1,59 @@
 services:
   # PostgreSQL database
-  # Заполнить 
+  postgres:
+   image: postgres
+   container_name: postgres
+   ports:
+    - "5432:5432"
+   env_file: .env
+   volumes:
+    - postgres_data:/var/lib/postgresql
 
   # Redis cache
-  # Заполнить 
+  redis:
+   image: redis
+   container_name: redis
+   ports:
+    - "6379:6379"
+   volumes:
+    - redis_data:/data
 
   # MinIO file storage
-  # Заполнить 
+  minio:
+   image: minio/minio
+   container_name: minio
+   command: server /data --console-address ":9001"
+   env_file: .env
+   ports:
+    - "9000:9000"
+    - "9001:9001"
+   volumes:
+    - minio_data:/data 
 
   # pgAdmin for database management
-  # Заполнить 
+  pgadmin:
+   image: dpage/pgadmin4
+   container_name: pgadmin
+   env_file: .env
+   ports:
+    - "5050:80"
+   depends_on:
+    - postgres
+   volumes:
+    - pgadmin_data:/var/lib/pgadmin
 
   # Redis Commander for Redis management
-  # Заполнить 
+  redis-commander:
+   image: rediscommander/redis-commander
+   container_name: redis_commander
+   env_file: .env
+   ports:
+    - "8081:8081"
+   depends_on:
+    - redis
 
 volumes:
  postgres_data:
  redis_data:
  minio_data:
+ pgadmin_data:
