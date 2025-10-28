@@ -25,7 +25,6 @@ public sealed class LibraryService : ILibraryService
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
     public async Task<Guid> BorrowBook(Guid bookId, Guid readerId)
     {
-        // todo инвалидация кэша Redis, взятые читателем книги
         var borrow = new Borrow
         {
             BookId = bookId,
@@ -37,7 +36,11 @@ public sealed class LibraryService : ILibraryService
 
         try
         {
-            return await _borrowRepository.CreateBorrow(borrow);
+            var borrowId = await _borrowRepository.CreateBorrow(borrow);
+            
+            await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
+            
+            return borrowId;
         }
         catch (Exception ex)
         {
@@ -77,12 +80,13 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            // todo инвалидация кэша Redis, взятые читателем книги
             var borrow = await _borrowRepository.GetBorrowByBookId(bookId);
             
             borrow.ReturnBook();
             
             await _borrowRepository.UpdateBorrow(borrow);
+
+            await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
         }
         catch (Exception ex)
         {

@@ -117,9 +117,9 @@ public sealed class BookService : IBookService
             
             // todo добавление в MinIO
             
-            // todo инвалидацию кэша деталей книг в Redis 
-            
             await _bookRepository.UpdateBook(bookId, book);
+
+            await _redisService.RemoveAsync($"book:details:{bookId}");
         }
         catch (Exception ex)
         {
