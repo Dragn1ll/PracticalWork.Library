@@ -87,7 +87,7 @@ public sealed class BookService : IBookService
     {
         try
         {
-            var cacheKey = $"books:list:{HashCode.Combine(status, category, author, page, pageSize)}";
+            var cacheKey = $"books:list:{HashCode.Combine(status, category, author)}:{page}:{pageSize}";
             var cache = await _redisService.GetAsync<IList<BookListDto>>(cacheKey);
             
             if (cache == null)

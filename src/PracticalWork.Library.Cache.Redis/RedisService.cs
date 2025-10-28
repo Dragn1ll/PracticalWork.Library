@@ -8,10 +8,12 @@ namespace PracticalWork.Library.Cache.Redis;
 public class RedisService : IRedisService
 {
     private readonly IDistributedCache _cache;
+    private readonly List<string> _keys;
 
     public RedisService(IDistributedCache cache)
     {
         _cache = cache;
+        _keys = new List<string>();
     }
     
     /// <inheritdoc cref="IRedisService.GetAsync{T}"/>
@@ -30,10 +32,24 @@ public class RedisService : IRedisService
         };
 
         await _cache.SetStringAsync(key, JsonSerializer.Serialize(value), options);
+        
+        _keys.Add(key);
     }
 
+    /// <inheritdoc cref="IRedisService.RemoveAsync"/>
     public async Task RemoveAsync(string key)
     {
         await _cache.RemoveAsync(key);
+        
+        _keys.Remove(key);
+    }
+
+    /// <inheritdoc cref="IRedisService.RemoveByPrefixAsync"/>
+    public async Task RemoveByPrefixAsync(string prefix)
+    {
+        foreach (var key in _keys.Where(k => k.StartsWith(prefix)))
+        {
+            await _cache.RemoveAsync(key);
+        }
     }
 }

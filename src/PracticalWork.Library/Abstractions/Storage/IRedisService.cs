@@ -27,4 +27,10 @@ public interface IRedisService
     /// </summary>
     /// <param name="key">Ключ</param>
     Task RemoveAsync(string key);
+
+    /// <summary>
+    /// Удаление значений по префиксу ключа
+    /// </summary>
+    /// <param name="prefix">Префикс ключа</param>
+    Task RemoveByPrefixAsync(string prefix);
 }

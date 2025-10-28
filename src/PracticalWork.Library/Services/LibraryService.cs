@@ -54,7 +54,7 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            var cacheKey = $"library:books:{HashCode.Combine(category, author, availableOnly, page, pageSize)}";
+            var cacheKey = $"library:books:{HashCode.Combine(category, author, availableOnly)}:{page}:{pageSize}";
             var cache = await _redisService.GetAsync<IList<LibraryBookDto>>(cacheKey);
 
             if (cache == null)
