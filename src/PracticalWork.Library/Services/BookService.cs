@@ -36,20 +36,21 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.UpdateBook"/>
-    public async Task UpdateBook(Guid bookId, Book book)
+    public async Task UpdateBook(Guid bookId, Book newBook)
     {
         try
         {
-            var bookEntity = await _bookRepository.GetBookById(bookId);
+            var book = await _bookRepository.GetBookById(bookId);
 
-            if (bookEntity.IsArchived)
+            if (book.IsArchived)
             {
                 throw new ArgumentException("Книга находится в архиве.");
             }
             
-            // todo инвалидацию кэша связанных данных в Redis 
+            await InvalidationBookListCache(book);
+            await InvalidationLibraryBookCache(book);
             
-            await _bookRepository.UpdateBook(bookId, book);
+            await _bookRepository.UpdateBook(bookId, newBook);
         }
         catch (Exception ex)
         {
@@ -63,13 +64,18 @@ public sealed class BookService : IBookService
         try
         {
             var book = await _bookRepository.GetBookById(bookId);
-
+            
+            if (!book.CanBeArchived())
+            {
+                throw new ArgumentException("Книга не может быть переведена в архив.");
+            }
             if (book.IsArchived)
             {
                 throw new ArgumentException("Книга уже переведена в архив.");
             }
             
-            // todo инвалидацию кэша списков книг в Redis 
+            await InvalidationBookListCache(book);
+            await InvalidationLibraryBookCache(book);
             
             book.Archive();
             
@@ -120,10 +126,31 @@ public sealed class BookService : IBookService
             await _bookRepository.UpdateBook(bookId, book);
 
             await _redisService.RemoveAsync($"book:details:{bookId}");
+            await InvalidationBookListCache(book);
         }
         catch (Exception ex)
         {
             throw new BookServiceException("Ошибка добавления деталей книги!", ex);
+        }
+    }
+
+    private async Task InvalidationBookListCache(Book book)
+    {
+        foreach (var author in book.Authors)
+        {
+            var prefix = $"books:list:{HashCode.Combine(book.Status, book.Category, author)}:";
+
+            await _redisService.RemoveByPrefixAsync(prefix);
+        }
+    }
+
+    private async Task InvalidationLibraryBookCache(Book book)
+    {
+        foreach (var author in book.Authors)
+        {
+            var prefix = $"books:list:{HashCode.Combine(book.Category, author, book.Status == BookStatus.Available)}:";
+
+            await _redisService.RemoveByPrefixAsync(prefix);
         }
     }
 }

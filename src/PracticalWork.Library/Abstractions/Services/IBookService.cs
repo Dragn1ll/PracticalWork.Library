@@ -21,8 +21,8 @@ public interface IBookService
     /// Редактирование книги
     /// </summary>
     /// <param name="bookId">Идентификатор книги</param>
-    /// <param name="book">Книга с изменёнными данными</param>
-    Task UpdateBook(Guid bookId, Book book);
+    /// <param name="newBook">Книга с изменёнными данными</param>
+    Task UpdateBook(Guid bookId, Book newBook);
     
     /// <summary>
     /// Перевод книги в архив
