@@ -31,4 +31,9 @@ public class RedisService : IRedisService
 
         await _cache.SetStringAsync(key, JsonSerializer.Serialize(value), options);
     }
+
+    public async Task RemoveAsync(string key)
+    {
+        await _cache.RemoveAsync(key);
+    }
 }

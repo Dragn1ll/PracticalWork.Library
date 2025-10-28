@@ -21,4 +21,10 @@ public interface IRedisService
     /// <param name="expiration">Время жизни кэша</param>
     /// <typeparam name="T">Тип отправляемого значения</typeparam>
     Task SetAsync<T>(string key, T value, TimeSpan expiration);
+
+    /// <summary>
+    /// Удалить значение по ключу
+    /// </summary>
+    /// <param name="key">Ключ</param>
+    Task RemoveAsync(string key);
 }
