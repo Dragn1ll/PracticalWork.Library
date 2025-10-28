@@ -1,4 +1,5 @@
 using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
@@ -12,16 +13,19 @@ public sealed class LibraryService : ILibraryService
 {
     private readonly IBookRepository _bookRepository;
     private readonly IBorrowRepository _borrowRepository;
+    private readonly IRedisService _redisService;
 
-    public LibraryService(IBookRepository bookRepository, IBorrowRepository borrowRepository)
+    public LibraryService(IBookRepository bookRepository, IBorrowRepository borrowRepository, IRedisService redisService)
     {
         _bookRepository = bookRepository;
         _borrowRepository = borrowRepository;
+        _redisService = redisService;
     }
     
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
     public async Task<Guid> BorrowBook(Guid bookId, Guid readerId)
     {
+        // todo инвалидация кэша Redis, взятые читателем книги
         var borrow = new Borrow
         {
             BookId = bookId,
@@ -47,8 +51,20 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            // todo доставание данных из кэша Redis
-            return await _bookRepository.GetLibraryBooks(category, author, availableOnly, page, pageSize);
+            var cacheKey = $"library:books:{HashCode.Combine(category, author, availableOnly, page, pageSize)}";
+            var cache = await _redisService.GetAsync<IList<LibraryBookDto>>(cacheKey);
+
+            if (cache == null)
+            {
+                var libraryBooks = await _bookRepository
+                    .GetLibraryBooks(category, author, availableOnly, page, pageSize);
+                
+                await _redisService.SetAsync(cacheKey, libraryBooks, TimeSpan.FromMinutes(5));
+                
+                return libraryBooks;
+            }
+            
+            return cache;
         }
         catch (Exception ex)
         {
@@ -61,6 +77,7 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
+            // todo инвалидация кэша Redis, взятые читателем книги
             var borrow = await _borrowRepository.GetBorrowByBookId(bookId);
             
             borrow.ReturnBook();
@@ -78,10 +95,20 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            var book = await _bookRepository.GetBookById(bookId);
-            // todo попытка достать данные из кэша Redis
+            var cacheKey = $"book:details:{bookId}";
+            var cache = await _redisService.GetAsync<BookDetailsDto>(cacheKey);
 
-            return new BookDetailsDto(book.Description, book.CoverImagePath);
+            if (cache == null)
+            {
+                var book = await _bookRepository.GetBookById(bookId);
+                var bookDetails = new BookDetailsDto(book.Description, book.CoverImagePath);
+                
+                await _redisService.SetAsync(cacheKey, bookDetails, TimeSpan.FromMinutes(30));
+
+                return bookDetails;
+            }
+
+            return cache;
         }
         catch (Exception ex)
         {
@@ -95,10 +122,8 @@ public sealed class LibraryService : ILibraryService
         try
         {
             var bookId = await _bookRepository.GetBookIdByTitle(title);
-            var book = await _bookRepository.GetBookById(bookId);
-            // todo попытка достать данные из кэша Redis
-
-            return new BookDetailsDto(book.Description, book.CoverImagePath);
+            
+            return await GetBookDetailsById(bookId);
         }
         catch (Exception ex)
         {

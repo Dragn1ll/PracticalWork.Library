@@ -1,4 +1,5 @@
 using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
 using PracticalWork.Library.Exceptions;
@@ -10,10 +11,12 @@ namespace PracticalWork.Library.Services;
 public sealed class ReaderService : IReaderService
 {
     private readonly IReaderRepository _readerRepository;
+    private readonly IRedisService _redisService;
 
-    public ReaderService(IReaderRepository readerRepository)
+    public ReaderService(IReaderRepository readerRepository, IRedisService redisService)
     {
         _readerRepository = readerRepository;
+        _redisService = redisService;
     }
 
     /// <inheritdoc cref="IReaderService.CreateReader"/>
@@ -59,8 +62,7 @@ public sealed class ReaderService : IReaderService
         {
             var reader = await _readerRepository.GetReaderById(readerId);
             
-            // todo пытаемся достать список книг из кэша в Redis
-            var books = await _readerRepository.GetBorrowedBooks(readerId);
+            var books = await GetBorrowedBooks(readerId);
 
             if (books.Any())
             {
@@ -82,8 +84,17 @@ public sealed class ReaderService : IReaderService
     {
         try
         {
-            // todo вытаскивание списка взятых книг из кэша Redis
-            return await _readerRepository.GetBorrowedBooks(readerId);
+            var cacheKey = $"reader:books:{readerId}";
+            var cache = await _redisService.GetAsync<IList<BorrowedBookDto>>(cacheKey);
+            
+            if (cache == null)
+            {
+                var borrowedBooks = await _readerRepository.GetBorrowedBooks(readerId);
+                await _redisService.SetAsync(cacheKey, borrowedBooks, TimeSpan.FromMinutes(15));
+                return borrowedBooks;
+            }
+            
+            return cache;
         }
         catch (Exception ex)
         {

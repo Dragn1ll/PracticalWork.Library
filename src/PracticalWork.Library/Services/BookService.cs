@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
 using PracticalWork.Library.Enums;
@@ -12,10 +13,12 @@ namespace PracticalWork.Library.Services;
 public sealed class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
+    private readonly IRedisService _redisService;
 
-    public BookService(IBookRepository bookRepository)
+    public BookService(IBookRepository bookRepository, IRedisService redisService)
     {
         _bookRepository = bookRepository;
+        _redisService = redisService;
     }
 
     /// <inheritdoc cref="IBookService.CreateBook"/>
@@ -84,8 +87,17 @@ public sealed class BookService : IBookService
     {
         try
         {
-            // todo добавить кэширование через Redis
-            return await _bookRepository.GetBooks(status, category, author, page, pageSize);
+            var cacheKey = $"books:list:{HashCode.Combine(status, category, author, page, pageSize)}";
+            var cache = await _redisService.GetAsync<IList<BookListDto>>(cacheKey);
+            
+            if (cache == null)
+            {
+                var books = await _bookRepository.GetBooks(status, category, author, page, pageSize);
+                await _redisService.SetAsync(cacheKey, books, TimeSpan.FromMinutes(10));
+                return books;
+            }
+            
+            return cache;
         }
         catch (Exception ex)
         {
