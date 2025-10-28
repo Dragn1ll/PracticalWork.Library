@@ -1,5 +1,8 @@
 namespace PracticalWork.Library.Dto;
 
+/// <summary>
+/// Данные о выданной книге
+/// </summary>
 public sealed class BorrowedBookDto
 {
     /// <summary>Идентификатор книги</summary>

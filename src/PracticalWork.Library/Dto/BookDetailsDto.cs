@@ -1,5 +1,8 @@
 namespace PracticalWork.Library.Dto;
 
+/// <summary>
+/// Детали книги(описание, путь к изображению обложки)
+/// </summary>
 public class BookDetailsDto
 {
     /// <summary>Краткое описание книги</summary>

@@ -2,6 +2,9 @@ using PracticalWork.Library.Enums;
 
 namespace PracticalWork.Library.Dto;
 
+/// <summary>
+/// Книга из библиотеки
+/// </summary>
 public class LibraryBookDto
 {
     /// <summary>Идентификатор книги</summary>
