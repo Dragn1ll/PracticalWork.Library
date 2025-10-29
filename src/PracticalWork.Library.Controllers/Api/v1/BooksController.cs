@@ -4,7 +4,6 @@ using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Contracts.v1.Books.Request;
 using PracticalWork.Library.Contracts.v1.Books.Response;
 using PracticalWork.Library.Controllers.Mappers.v1;
-using PracticalWork.Library.Dto.Input;
 
 namespace PracticalWork.Library.Controllers.Api.v1;
 
@@ -67,11 +66,12 @@ public class BooksController : Controller
     {
         var result = await _bookService.GetBooks(request.ToGetBookListDto());
 
-        return Ok(result.Select(bl => bl.ToBookListResponse()));
+        return Ok(result.Select(bl => bl.ToBookListResponse()).ToList());
     }
     
     /// <summary>Добавление деталей книг</summary>
     [HttpPost("{id:guid}/details")]
+    [Produces("application/json")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
