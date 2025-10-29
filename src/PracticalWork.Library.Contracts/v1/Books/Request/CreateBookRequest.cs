@@ -1,5 +1,5 @@
 ﻿using PracticalWork.Library.Contracts.v1.Abstracts;
-using PracticalWork.Library.Contracts.v1.Enums;
+using PracticalWork.Library.Enums;
 
 namespace PracticalWork.Library.Contracts.v1.Books.Request;
 
