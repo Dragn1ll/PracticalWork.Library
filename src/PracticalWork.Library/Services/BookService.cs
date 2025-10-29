@@ -3,6 +3,8 @@ using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Dto.Input;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
@@ -38,7 +40,7 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.UpdateBook"/>
-    public async Task UpdateBook(Guid bookId, Book newBook)
+    public async Task UpdateBook(Guid bookId, UpdateBookDto updateBookDto)
     {
         try
         {
@@ -52,7 +54,12 @@ public sealed class BookService : IBookService
             await InvalidationBookListCache(book);
             await InvalidationLibraryBookCache(book);
             
-            await _bookRepository.UpdateBook(bookId, newBook);
+            book.Title = updateBookDto.Title;
+            book.Authors = updateBookDto.Authors;
+            book.Description = updateBookDto.Description;
+            book.Year = updateBookDto.Year;
+            
+            await _bookRepository.UpdateBook(bookId, book);
         }
         catch (Exception ex)
         {
@@ -92,17 +99,18 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.GetBooks"/>
-    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page,
-        int pageSize)
+    public async Task<IList<BookListDto>> GetBooks(GetBookListDto getBookList)
     {
         try
         {
-            var cacheKey = $"books:list:{HashCode.Combine(status, category, author)}:{page}:{pageSize}";
+            var cacheKey = $"books:list:{HashCode.Combine(getBookList.Status, getBookList.Category, 
+                getBookList.Author)}:{getBookList.Page}:{getBookList.PageSize}";
             var cache = await _redisService.GetAsync<IList<BookListDto>>(cacheKey);
             
             if (cache == null)
             {
-                var books = await _bookRepository.GetBooks(status, category, author, page, pageSize);
+                var books = await _bookRepository.GetBooks(getBookList.Status, getBookList.Category, 
+                    getBookList.Author, getBookList.Page, getBookList.PageSize);
 
                 foreach (var book in books)
                 {

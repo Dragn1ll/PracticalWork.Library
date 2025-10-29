@@ -2,6 +2,8 @@ using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Dto.Input;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
@@ -52,18 +54,19 @@ public sealed class LibraryService : ILibraryService
     }
 
     /// <inheritdoc cref="ILibraryService.GetLibraryBooks"/>
-    public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
-        int page, int pageSize)
+    public async Task<IList<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto)
     {
         try
         {
-            var cacheKey = $"library:books:{HashCode.Combine(category, author, availableOnly)}:{page}:{pageSize}";
+            var cacheKey = $"library:books:{HashCode.Combine(getLibraryBooksDto.Category, getLibraryBooksDto.Author, 
+                getLibraryBooksDto.AvailableOnly)}:{getLibraryBooksDto.Page}:{getLibraryBooksDto.PageSize}";
             var cache = await _redisService.GetAsync<IList<LibraryBookDto>>(cacheKey);
 
             if (cache == null)
             {
                 var libraryBooks = await _bookRepository
-                    .GetLibraryBooks(category, author, availableOnly, page, pageSize);
+                    .GetLibraryBooks(getLibraryBooksDto.Category, getLibraryBooksDto.Author, getLibraryBooksDto.AvailableOnly, 
+                        getLibraryBooksDto.Page, getLibraryBooksDto.PageSize);
                 
                 await _redisService.SetAsync(cacheKey, libraryBooks, TimeSpan.FromMinutes(5));
                 

@@ -1,4 +1,4 @@
-namespace PracticalWork.Library.Dto;
+namespace PracticalWork.Library.Dto.Output;
 
 /// <summary>
 /// Данные о выданной книге

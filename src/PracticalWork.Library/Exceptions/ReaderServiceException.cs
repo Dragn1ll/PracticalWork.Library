@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Exceptions;

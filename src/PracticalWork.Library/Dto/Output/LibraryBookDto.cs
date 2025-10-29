@@ -1,6 +1,4 @@
-using PracticalWork.Library.Enums;
-
-namespace PracticalWork.Library.Dto;
+namespace PracticalWork.Library.Dto.Output;
 
 /// <summary>
 /// Книга из библиотеки

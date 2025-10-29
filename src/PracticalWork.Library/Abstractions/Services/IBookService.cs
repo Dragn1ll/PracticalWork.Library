@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Dto.Input;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
 
@@ -21,8 +23,8 @@ public interface IBookService
     /// Редактирование книги
     /// </summary>
     /// <param name="bookId">Идентификатор книги</param>
-    /// <param name="newBook">Книга с изменёнными данными</param>
-    Task UpdateBook(Guid bookId, Book newBook);
+    /// <param name="updateBookDto">Обновлённые данные</param>
+    Task UpdateBook(Guid bookId, UpdateBookDto updateBookDto);
     
     /// <summary>
     /// Перевод книги в архив
@@ -34,8 +36,9 @@ public interface IBookService
     /// <summary>
     /// Получение списка книг
     /// </summary>
+    /// <param name="getBookList">Фильтры + пагинация</param>
     /// <returns>Список книг</returns>
-    Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
+    Task<IList<BookListDto>> GetBooks(GetBookListDto getBookList);
 
     /// <summary>
     /// Добавление деталей книги

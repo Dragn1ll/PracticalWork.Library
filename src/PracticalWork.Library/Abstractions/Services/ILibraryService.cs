@@ -1,4 +1,6 @@
 using PracticalWork.Library.Dto;
+using PracticalWork.Library.Dto.Input;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
 
 namespace PracticalWork.Library.Abstractions.Services;
@@ -19,9 +21,9 @@ public interface ILibraryService
     /// <summary>
     /// Получение списка книг библиотеки
     /// </summary>
+    /// <param name="getLibraryBooksDto">Фильтры + пагинация</param>
     /// <returns>Список книг</returns>
-    Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, int page, 
-        int pageSize);
+    Task<IList<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto);
     
     /// <summary>
     /// Возврат книги
