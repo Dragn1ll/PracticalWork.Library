@@ -12,6 +12,8 @@ public static class Entry
     public static IServiceCollection AddDomain(this IServiceCollection services)
     {
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<ILibraryService, LibraryService>();
+        services.AddScoped<IReaderService, ReaderService>();
 
         return services;
     }

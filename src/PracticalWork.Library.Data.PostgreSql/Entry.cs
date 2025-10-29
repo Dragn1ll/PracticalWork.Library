@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
 
@@ -17,6 +18,8 @@ public static class Entry
         serviceCollection.AddDbContext<AppDbContext>(optionsAction ?? DefaultOptionsAction, optionsLifetime: ServiceLifetime.Singleton);
 
         serviceCollection.AddScoped<IBookRepository, BookRepository>();
+        serviceCollection.AddScoped<IBorrowRepository, BorrowRepository>();
+        serviceCollection.AddScoped<IReaderRepository, ReaderRepository>();
 
         return serviceCollection;
     }
