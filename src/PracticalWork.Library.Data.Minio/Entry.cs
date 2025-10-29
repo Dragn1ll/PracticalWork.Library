@@ -10,9 +10,8 @@ public static class Entry
     /// </summary>
     public static IServiceCollection AddMinioFileStorage(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        var connectionString = configuration["App:Minio:MinioFileStorageConnection"];
-
         // Реализация подключения к Minio и сервисов
+        serviceCollection.Configure<MinIoOptions>(configuration.GetSection("App:Minio"));
 
         return serviceCollection;
     }
