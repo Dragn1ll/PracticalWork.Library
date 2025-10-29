@@ -14,11 +14,13 @@ public sealed class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
     private readonly IRedisService _redisService;
+    private readonly IMinIoService _minIoService;
 
-    public BookService(IBookRepository bookRepository, IRedisService redisService)
+    public BookService(IBookRepository bookRepository, IRedisService redisService, IMinIoService minIoService)
     {
         _bookRepository = bookRepository;
         _redisService = redisService;
+        _minIoService = minIoService;
     }
 
     /// <inheritdoc cref="IBookService.CreateBook"/>
@@ -99,6 +101,12 @@ public sealed class BookService : IBookService
             if (cache == null)
             {
                 var books = await _bookRepository.GetBooks(status, category, author, page, pageSize);
+
+                foreach (var book in books)
+                {
+                    book.CoverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
+                }
+                
                 await _redisService.SetAsync(cacheKey, books, TimeSpan.FromMinutes(10));
                 return books;
             }
@@ -116,12 +124,18 @@ public sealed class BookService : IBookService
     {
         try
         {
+            if (!IsValidImageExtension(coverImage.ContentType) || coverImage.Length <= 5 * 1024 * 1024)
+            {
+                throw new ArgumentException("Неверный формат изображения!");
+            }
+            
             var book = await _bookRepository.GetBookById(bookId);
-            
-            // временная заглушка
-            book.UpdateDetails(String.Empty, description);
-            
-            // todo добавление в MinIO
+
+            book.UpdateDetails($"{DateTime.Today.Year}/{DateTime.Today.Month}/{bookId}.{coverImage.ContentType}",
+                description);
+
+            await _minIoService.UploadFileAsync(book.CoverImagePath, coverImage.OpenReadStream(), 
+                coverImage.ContentType);
             
             await _bookRepository.UpdateBook(bookId, book);
 
@@ -152,5 +166,20 @@ public sealed class BookService : IBookService
 
             await _redisService.RemoveByPrefixAsync(prefix);
         }
+    }
+    
+    
+
+    private bool IsValidImageExtension(string extension)
+    {
+        var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
+
+        return extension != null && allowedExtensions.Contains(extension);
     }
 }

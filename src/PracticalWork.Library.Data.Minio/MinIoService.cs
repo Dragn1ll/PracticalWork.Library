@@ -21,7 +21,7 @@ public class MinIoService : IMinIoService
     }
 
     /// <inheritdoc cref="IMinIoService.UploadFileAsync"/>
-    public async Task UploadFileAsync(string fileName, Stream fileStream, string extensionType)
+    public async Task UploadFileAsync(string fileName, Stream fileStream, string extension)
     {
         await CheckBucketAsync();
         
@@ -35,7 +35,7 @@ public class MinIoService : IMinIoService
             throw new ArgumentNullException(nameof(fileStream));
         }
 
-        if (string.IsNullOrWhiteSpace(extensionType))
+        if (string.IsNullOrWhiteSpace(extension))
         {
             throw new ArgumentException("Пустое название типа файла!");
         }
@@ -45,7 +45,7 @@ public class MinIoService : IMinIoService
             .WithObject(fileName)
             .WithStreamData(fileStream)
             .WithObjectSize(fileStream.Length)
-            .WithContentType(extensionType);
+            .WithContentType(extension);
         
         await _minioClient.PutObjectAsync(putObjectArgs);
     }

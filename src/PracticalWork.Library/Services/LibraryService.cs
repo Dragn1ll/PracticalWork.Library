@@ -14,12 +14,15 @@ public sealed class LibraryService : ILibraryService
     private readonly IBookRepository _bookRepository;
     private readonly IBorrowRepository _borrowRepository;
     private readonly IRedisService _redisService;
+    private readonly IMinIoService _minIoService;
 
-    public LibraryService(IBookRepository bookRepository, IBorrowRepository borrowRepository, IRedisService redisService)
+    public LibraryService(IBookRepository bookRepository, IBorrowRepository borrowRepository, IRedisService redisService, 
+        IMinIoService minIoService)
     {
         _bookRepository = bookRepository;
         _borrowRepository = borrowRepository;
         _redisService = redisService;
+        _minIoService = minIoService;
     }
     
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
@@ -105,7 +108,8 @@ public sealed class LibraryService : ILibraryService
             if (cache == null)
             {
                 var book = await _bookRepository.GetBookById(bookId);
-                var bookDetails = new BookDetailsDto(book.Description, book.CoverImagePath);
+                var coverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
+                var bookDetails = new BookDetailsDto(book.Description, coverImagePath);
                 
                 await _redisService.SetAsync(cacheKey, bookDetails, TimeSpan.FromMinutes(30));
 
