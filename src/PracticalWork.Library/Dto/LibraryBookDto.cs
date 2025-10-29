@@ -7,32 +7,23 @@ namespace PracticalWork.Library.Dto;
 /// </summary>
 public class LibraryBookDto
 {
-    /// <summary>Идентификатор книги</summary>
-    public Guid BookId { get; set; }
-    
     /// <summary>Название книги</summary>
     public string Title { get; set; }
 
     /// <summary>Авторы</summary>
     public IReadOnlyList<string> Authors { get; set; }
+
+    /// <summary>Краткое описание книги</summary>
+    public string Description { get; set; }
     
     /// <summary>Год издания</summary>
     public int Year { get; set; }
 
-    /// <summary>Категория</summary>
-    public BookCategory Category { get; set; }
-
-    /// <summary>Статус</summary>
-    public BookStatus Status { get; set; }
-
-    public LibraryBookDto(Guid bookId, string title, IReadOnlyList<string> authors, int year, 
-        BookCategory category, BookStatus status)
+    public LibraryBookDto(string title, IReadOnlyList<string> authors, string description, int year)
     {
-        BookId = bookId;
         Title = title;
         Authors = authors;
+        Description = description;
         Year = year;
-        Category = category;
-        Status = status;
     }
 }

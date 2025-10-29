@@ -30,14 +30,14 @@ public interface ILibraryService
     Task ReturnBook(Guid bookId);
     
     /// <summary>
-    /// Получение деталей книги по идентификатору
+    /// Получение детальной информации о книге по идентификатору
     /// </summary>
     /// <param name="bookId">Идентификатор книги</param>
     /// <returns>Детали книги</returns>
     Task<BookDetailsDto> GetBookDetailsById(Guid bookId);
     
     /// <summary>
-    /// Получение деталей книги по названию
+    /// Получение детальной информации о книге по названию
     /// </summary>
     /// <param name="title">Название книги</param>
     /// <returns>Детали книги</returns>

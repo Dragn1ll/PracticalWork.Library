@@ -70,34 +70,36 @@ public sealed class BookRepository : IBookRepository
     public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
         int page, int pageSize)
     {
-        return await _appDbContext.Books.AsNoTracking()
+        var entities = await _appDbContext.Books.AsNoTracking()
             .Where(b => b.Authors.Contains(author) && b.Status == status)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, 
-                e.Year, ConvertToBookCategory(e), e.Status, e.CoverImagePath))
-            .Where(b => b.Category == category)
             .ToListAsync();
+
+        return entities.Where(b => ConvertToBookCategory(b) == category)
+            .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, e.Year, e.CoverImagePath))
+            .ToList();
     }
 
     /// <inheritdoc cref="IBookRepository.GetLibraryBooks"/>
     public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
         int page, int pageSize)
     {
-        Predicate<AbstractBookEntity> predicate = b => true;
+        Predicate<AbstractBookEntity> predicate = _ => true;
         if (availableOnly)
         {
              predicate = b => b.Status == BookStatus.Available;
         }
-        
-        return await _appDbContext.Books.AsNoTracking()
-            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived && predicate(b))
+
+        var entities = await _appDbContext.Books.AsNoTracking()
+            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(e => new LibraryBookDto(e.Id, e.Title, e.Authors, e.Year, ConvertToBookCategory(e), 
-                e.Status))
-            .Where(b => b.Category == category)
             .ToListAsync();
+        
+        return entities.Where(b => predicate(b) && ConvertToBookCategory(b) == category)
+            .Select(e => new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year))
+            .ToList();
     }
 
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>

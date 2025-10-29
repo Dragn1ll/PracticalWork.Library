@@ -109,7 +109,8 @@ public sealed class LibraryService : ILibraryService
             {
                 var book = await _bookRepository.GetBookById(bookId);
                 var coverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
-                var bookDetails = new BookDetailsDto(book.Description, coverImagePath);
+                var bookDetails = new BookDetailsDto(bookId, book.Title, book.Authors, book.Description, book.Year, 
+                    book.Category, book.Status, coverImagePath, book.IsArchived);
                 
                 await _redisService.SetAsync(cacheKey, bookDetails, TimeSpan.FromMinutes(30));
 
