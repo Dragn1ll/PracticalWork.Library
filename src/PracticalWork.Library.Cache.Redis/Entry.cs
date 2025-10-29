@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PracticalWork.Library.Abstractions.Storage;
 
 namespace PracticalWork.Library.Cache.Redis;
 
@@ -19,6 +20,8 @@ public static class Entry
             option.Configuration = connectionString;
             option.InstanceName = prefix;
         });
+
+        serviceCollection.AddSingleton<IRedisService, RedisService>();
 
         return serviceCollection;
     }
