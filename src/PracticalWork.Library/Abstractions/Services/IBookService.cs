@@ -28,7 +28,8 @@ public interface IBookService
     /// Перевод книги в архив
     /// </summary>
     /// <param name="bookId">Идентификатор книги</param>
-    Task ArchiveBook(Guid bookId);
+    /// <returns>Информацию об архивации</returns>
+    Task<ArchiveBookDto> ArchiveBook(Guid bookId);
     
     /// <summary>
     /// Получение списка книг

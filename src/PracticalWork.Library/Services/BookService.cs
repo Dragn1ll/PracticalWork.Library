@@ -61,7 +61,7 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.ArchiveBook"/>
-    public async Task ArchiveBook(Guid bookId)
+    public async Task<ArchiveBookDto> ArchiveBook(Guid bookId)
     {
         try
         {
@@ -82,6 +82,8 @@ public sealed class BookService : IBookService
             book.Archive();
             
             await _bookRepository.UpdateBook(bookId, book);
+
+            return new ArchiveBookDto(bookId, book.Title);
         }
         catch (Exception ex)
         {
