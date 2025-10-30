@@ -20,4 +20,4 @@ public record LibraryBookResponse(
     Guid? ReaderId,
     DateOnly? BorrowDate,
     DateOnly? DueDate
-    ) : AbstractBook(Title, Authors, Description, Year);
+    ) : AbstractBook(Title, Authors, Year);

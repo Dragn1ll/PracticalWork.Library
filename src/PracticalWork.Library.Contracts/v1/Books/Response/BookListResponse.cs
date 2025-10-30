@@ -18,4 +18,4 @@ public record BookListResponse(
     string Description, 
     int Year, 
     string CoverImagePath
-    ) : AbstractBook(Title, Authors, Description, Year);
+    ) : AbstractBook(Title, Authors, Year);

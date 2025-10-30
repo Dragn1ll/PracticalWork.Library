@@ -10,8 +10,8 @@ public enum BookStatus
     Available = 0,
 
     /// <summary>Книга выдана читателю</summary>
-    Borrow = 10,
+    Borrow = 1,
 
     /// <summary>Книга переведена в архив</summary>
-    Archived = 20
+    Archived = 2
 }

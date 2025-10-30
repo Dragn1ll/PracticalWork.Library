@@ -25,4 +25,4 @@ public sealed record BookDetailsResponse(
     string CoverImagePath,
     BookStatus Status,
     bool IsArchived
-) : AbstractBook(Title, Authors, Description, Year);
+) : AbstractBook(Title, Authors, Year);

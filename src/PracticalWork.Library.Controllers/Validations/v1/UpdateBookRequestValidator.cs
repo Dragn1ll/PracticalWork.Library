@@ -16,10 +16,6 @@ public sealed class UpdateBookRequestValidator : AbstractValidator<UpdateBookReq
             .Must(authors => authors?.All(a => !string.IsNullOrWhiteSpace(a)) == true)
             .WithMessage("Все авторы должны быть непустыми строками.");
 
-        RuleFor(x => x.Description)
-            .MaximumLength(2000).WithMessage("Описание не может превышать 2000 символов.")
-            .When(x => !string.IsNullOrEmpty(x.Description));
-
         RuleFor(x => x.Year)
             .InclusiveBetween(1800, DateTime.Now.Year).WithMessage("Год издания должен быть между 1800 и настоящем годом.");
     }

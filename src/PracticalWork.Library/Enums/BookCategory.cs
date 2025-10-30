@@ -8,11 +8,11 @@ public enum BookCategory
     Default = 0,
 
     /// <summary>Научная литература</summary>
-    ScientificBook = 10,
+    ScientificBook = 1,
 
     /// <summary>Учебное пособие</summary>
-    EducationalBook = 20,
+    EducationalBook = 2,
 
     /// <summary>Художественная литература</summary>
-    FictionBook = 30
+    FictionBook = 3
 }

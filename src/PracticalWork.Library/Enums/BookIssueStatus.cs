@@ -14,10 +14,10 @@ public enum BookIssueStatus
     /// <summary>
     /// Возвращена
     /// </summary>
-    Returned = 10,
+    Returned = 1,
 
     /// <summary>
     /// Возвращена с просрочкой
     /// </summary>
-    Overdue = 20
+    Overdue = 2
 }
