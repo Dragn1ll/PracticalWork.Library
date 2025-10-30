@@ -6,6 +6,7 @@ using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
 
+/// <inheritdoc cref="IBorrowRepository"/>
 public class BorrowRepository : IBorrowRepository
 {
     private readonly AppDbContext _appDbContext;
@@ -15,6 +16,7 @@ public class BorrowRepository : IBorrowRepository
         _appDbContext = appDbContext;
     }
     
+    /// <inheritdoc cref="IBorrowRepository.CreateBorrow"/>
     public async Task<Guid> CreateBorrow(Borrow borrow)
     {
         var entity = new BookBorrowEntity
@@ -32,6 +34,7 @@ public class BorrowRepository : IBorrowRepository
         return entity.Id;
     }
 
+    /// <inheritdoc cref="IBorrowRepository.GetBorrowByBookId"/>
     public async Task<Borrow> GetBorrowByBookId(Guid bookId)
     {
         var entity = await _appDbContext.BookBorrows. AsNoTracking()
@@ -52,9 +55,10 @@ public class BorrowRepository : IBorrowRepository
         };
     }
 
+    /// <inheritdoc cref="IBorrowRepository.UpdateBorrow"/>
     public async Task UpdateBorrow(Borrow borrow)
     {
-        var entity = await _appDbContext.BookBorrows. AsNoTracking()
+        var entity = await _appDbContext.BookBorrows 
             .SingleOrDefaultAsync(b => b.BookId == borrow.BookId && b.ReaderId == borrow.ReaderId 
                                                                  && b.Status == BookIssueStatus.Issued);
 
@@ -62,11 +66,10 @@ public class BorrowRepository : IBorrowRepository
         {
             throw new ArgumentException("Отсутствует активная запись о выдачи книги");
         }
-        
+    
         entity.ReturnDate = borrow.ReturnDate;
         entity.Status = borrow.Status;
-        
-        _appDbContext.Update(entity);
+    
         await _appDbContext.SaveChangesAsync();
     }
 }

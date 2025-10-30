@@ -24,7 +24,7 @@ public interface IBorrowRepository
     /// <summary>
     /// Обновить данные последней выдачи
     /// </summary>
-    /// <param name="borrow"></param>
+    /// <param name="borrow">Обновлённая запись о выдаче книги</param>
     /// <returns></returns>
     Task UpdateBorrow(Borrow borrow);
 }

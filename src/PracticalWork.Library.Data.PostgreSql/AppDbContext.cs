@@ -50,10 +50,10 @@ public sealed class AppDbContext : DbContext
 
     #endregion
 
-    internal DbSet<AbstractBookEntity> Books { get; set; }
+    public DbSet<AbstractBookEntity> Books { get; set; }
     internal DbSet<EducationalBookEntity> EducationalBooks { get; set; }
     internal DbSet<FictionBookEntity> FictionBooks { get; set; }
     internal DbSet<ScientificBookEntity> ScientificBooks { get; set; }
-    internal DbSet<ReaderEntity> Readers { get; set; }
-    internal DbSet<BookBorrowEntity> BookBorrows { get; set; }
+    public DbSet<ReaderEntity> Readers { get; set; }
+    public DbSet<BookBorrowEntity> BookBorrows { get; set; }
 }
