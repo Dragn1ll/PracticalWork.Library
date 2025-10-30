@@ -56,7 +56,6 @@ public sealed class BookService : IBookService
             
             book.Title = updateBookDto.Title;
             book.Authors = updateBookDto.Authors;
-            book.Description = updateBookDto.Description;
             book.Year = updateBookDto.Year;
             
             await _bookRepository.UpdateBook(bookId, book);
@@ -134,15 +133,16 @@ public sealed class BookService : IBookService
     {
         try
         {
-            if (!IsValidImageExtension(coverImage.ContentType) || coverImage.Length <= 5 * 1024 * 1024)
+            var extension = Path.GetExtension(coverImage.FileName);
+            if (!IsValidImageExtension(extension) || coverImage.Length > 5 * 1024 * 1024)
             {
                 throw new ArgumentException("Неверный формат изображения!");
             }
             
             var book = await _bookRepository.GetBookById(bookId);
 
-            book.UpdateDetails($"{DateTime.Today.Year}/{DateTime.Today.Month}/{bookId}.{coverImage.ContentType}",
-                description);
+            book.UpdateDetails(description,
+                $"{DateTime.Today.Year}/{DateTime.Today.Month}/{bookId}{extension}");
 
             await _minIoService.UploadFileAsync(book.CoverImagePath, coverImage.OpenReadStream(), 
                 coverImage.ContentType);
@@ -177,8 +177,6 @@ public sealed class BookService : IBookService
             await _redisService.RemoveByPrefixAsync(prefix);
         }
     }
-    
-    
 
     private bool IsValidImageExtension(string extension)
     {

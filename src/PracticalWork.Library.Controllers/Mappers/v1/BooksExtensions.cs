@@ -23,7 +23,6 @@ public static class BooksExtensions
         new(
             request.Title, 
             request.Authors, 
-            request.Description, 
             request.Year
             );
 

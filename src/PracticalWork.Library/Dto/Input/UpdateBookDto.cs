@@ -11,17 +11,13 @@ public sealed class UpdateBookDto
     /// <summary>Авторы</summary>
     public IReadOnlyList<string> Authors { get; }
 
-    /// <summary>Краткое описание книги</summary>
-    public string Description { get; }
-
     /// <summary>Год издания</summary>
     public int Year { get; }
 
-    public UpdateBookDto(string title, IReadOnlyList<string> authors, string description, int year)
+    public UpdateBookDto(string title, IReadOnlyList<string> authors, int year)
     {
         Title = title;
         Authors = authors;
-        Description = description;
         Year = year;
     }
 }
