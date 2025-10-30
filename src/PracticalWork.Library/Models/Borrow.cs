@@ -7,13 +7,13 @@ namespace PracticalWork.Library.Models;
 /// </summary>
 public sealed class Borrow
 {
-    /// <summary>Внешний ключ на Book</summary>
+    /// <summary>Идентификатор книги</summary>
     public Guid BookId { get; set; }
     
-    /// <summary>Внешний ключ на Reader</summary>
+    /// <summary>Идентификатор читателя</summary>
     public Guid ReaderId { get; set; }
     
-    /// <summary>дата выдачи</summary>
+    /// <summary>Дата выдачи</summary>
     public DateOnly BorrowDate { get; set; }
     
     /// <summary>Срок возврата</summary>

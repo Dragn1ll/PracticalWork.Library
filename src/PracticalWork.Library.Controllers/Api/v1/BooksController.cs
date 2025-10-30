@@ -47,6 +47,7 @@ public class BooksController : Controller
 
     /// <summary>Перевод книги в архив</summary>
     [HttpPost("{id:guid}/archive")]
+    [Produces("application/json")]
     [ProducesResponseType(typeof(ArchiveBookResponse), 200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
@@ -59,10 +60,11 @@ public class BooksController : Controller
     
     /// <summary>Получение списка книг</summary>
     [HttpGet]
+    [Produces("application/json")]
     [ProducesResponseType(typeof(IList<BookListResponse>), 200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public async Task<IActionResult> GetBooks([FromBody] GetBookListRequest request)
+    public async Task<IActionResult> GetBooks([FromQuery] GetBookListRequest request)
     {
         var result = await _bookService.GetBooks(request.ToGetBookListDto());
 

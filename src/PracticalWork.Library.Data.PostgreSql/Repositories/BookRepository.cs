@@ -93,13 +93,26 @@ public sealed class BookRepository : IBookRepository
         }
 
         var entities = await _appDbContext.Books.AsNoTracking()
+            .Include(b => b.IssuanceRecords)
             .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
         
         return entities.Where(b => predicate(b) && ConvertToBookCategory(b) == category)
-            .Select(e => new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year))
+            .Select(e =>
+            {
+                var lastIssuance = e.IssuanceRecords.LastOrDefault(ir => 
+                    ir.Status == BookIssueStatus.Issued);
+
+                if (lastIssuance == null)
+                {
+                    return new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year);
+                }
+
+                return new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year, lastIssuance.ReaderId,
+                    lastIssuance.BorrowDate, lastIssuance.DueDate);
+            })
             .ToList();
     }
 

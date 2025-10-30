@@ -14,11 +14,20 @@ public class GetLibraryBooksDto
     public string Author { get; }
 
     /// <summary>Только доступные к выдаче</summary>
-    public bool AvailableOnly { get; set; }
+    public bool AvailableOnly { get; }
 
     /// <summary>Номер страницы</summary>
     public int Page { get; }
     
     /// <summary>Размер страницы</summary>
     public int PageSize { get; }
+
+    public GetLibraryBooksDto(BookCategory category, string author, bool availableOnly, int page, int pageSize)
+    {
+        Category = category;
+        Author = author;
+        AvailableOnly = availableOnly;
+        Page = page;
+        PageSize = pageSize;
+    }
 }

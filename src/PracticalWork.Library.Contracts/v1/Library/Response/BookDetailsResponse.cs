@@ -1,7 +1,7 @@
 ﻿using PracticalWork.Library.Contracts.v1.Abstracts;
 using PracticalWork.Library.Enums;
 
-namespace PracticalWork.Library.Contracts.v1.Books.Response;
+namespace PracticalWork.Library.Contracts.v1.Library.Response;
 
 /// <summary>
 /// Ответ с детальной информацией по книге

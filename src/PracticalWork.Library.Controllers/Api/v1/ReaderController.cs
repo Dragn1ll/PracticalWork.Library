@@ -47,6 +47,7 @@ public class ReaderController : Controller
 
     /// <summary>Закрытие карточки читателя</summary>
     [HttpPost("{id:guid}/close")]
+    [Produces("application/json")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
@@ -59,6 +60,7 @@ public class ReaderController : Controller
     
     /// <summary>Получение взятых книг</summary>
     [HttpPost("{id:guid}/books")]
+    [Produces("application/json")]
     [ProducesResponseType(typeof(IList<BorrowedBookResponse>),200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
