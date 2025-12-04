@@ -13,7 +13,7 @@ public class RedisService : IRedisService
     public RedisService(IDistributedCache cache)
     {
         _cache = cache;
-        _keys = new List<string>();
+        _keys = [];
     }
     
     /// <inheritdoc cref="IRedisService.GetAsync{T}"/>
