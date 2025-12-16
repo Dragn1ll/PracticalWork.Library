@@ -140,6 +140,10 @@ public sealed class BookService : IBookService
         try
         {
             var book = await _bookRepository.GetBookById(bookId);
+            if (book.IsArchived)
+            {
+                throw new ClientErrorException("Книга заархивирована.");
+            }
 
             book.UpdateDetails(description,
                 $"{DateTime.Today.Year}/{DateTime.Today.Month}/{bookId}{extension}");
@@ -152,7 +156,7 @@ public sealed class BookService : IBookService
             await _redisService.RemoveAsync($"book:details:{bookId}");
             await InvalidationBookListCache(book);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new BookServiceException("Ошибка добавления деталей книги!", ex);
         }
