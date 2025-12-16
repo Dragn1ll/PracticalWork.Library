@@ -113,7 +113,10 @@ public sealed class BookService : IBookService
 
                 foreach (var book in books)
                 {
-                    book.CoverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
+                    if (!string.IsNullOrWhiteSpace(book.CoverImagePath))
+                    {
+                        book.CoverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
+                    }
                 }
                 
                 await _redisService.SetAsync(cacheKey, books, TimeSpan.FromMinutes(10));

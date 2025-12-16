@@ -119,7 +119,9 @@ public sealed class LibraryService : ILibraryService
                     throw new ClientErrorException("Книга заархивирована.");
                 }
                 
-                var coverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
+                var coverImagePath = string.IsNullOrEmpty(book.CoverImagePath) 
+                    ? null
+                    : await _minIoService.GetFileUrlAsync(book.CoverImagePath);
                 var bookDetails = new BookDetailsDto(bookId, book.Title, book.Authors, book.Description, book.Year, 
                     book.Category, book.Status, coverImagePath, book.IsArchived);
                 
