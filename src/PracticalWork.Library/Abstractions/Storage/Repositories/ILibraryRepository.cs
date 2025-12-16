@@ -1,6 +1,6 @@
 using PracticalWork.Library.Dto.Output;
-using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Abstractions.Storage.Repositories;
 

@@ -10,4 +10,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
+  </ItemGroup>
 </Project>

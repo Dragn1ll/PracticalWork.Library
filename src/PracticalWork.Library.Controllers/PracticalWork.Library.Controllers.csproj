@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
     <ProjectReference Include="..\PracticalWork.Library.Contracts\PracticalWork.Library.Contracts.csproj" />
     <ProjectReference Include="..\PracticalWork.Library\PracticalWork.Library.csproj" />
   </ItemGroup>

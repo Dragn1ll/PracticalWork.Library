@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PracticalWork.Library\PracticalWork.Library.csproj" />
+    <ProjectReference Include="..\..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

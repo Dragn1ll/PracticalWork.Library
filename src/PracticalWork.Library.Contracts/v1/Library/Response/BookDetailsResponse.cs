@@ -1,5 +1,5 @@
 ﻿using PracticalWork.Library.Contracts.v1.Abstracts;
-using PracticalWork.Library.Enums;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Contracts.v1.Library.Response;
 

@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
-using PracticalWork.Library.Enums;
 using PracticalWork.Library.Models;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Tests.Repositories;
 

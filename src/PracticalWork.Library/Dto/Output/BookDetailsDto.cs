@@ -1,4 +1,4 @@
-using PracticalWork.Library.Enums;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Dto.Output;
 

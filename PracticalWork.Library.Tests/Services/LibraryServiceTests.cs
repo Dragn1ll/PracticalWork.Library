@@ -3,10 +3,10 @@ using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto.Input;
 using PracticalWork.Library.Dto.Output;
-using PracticalWork.Library.Enums;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.Services;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Tests.Services;
 

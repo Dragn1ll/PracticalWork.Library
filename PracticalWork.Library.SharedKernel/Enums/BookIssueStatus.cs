@@ -1,4 +1,4 @@
-﻿namespace PracticalWork.Library.Enums;
+﻿namespace PracticalWork.Library.SharedKernel.Enums;
 
 /// <summary>
 /// Состояние книги
