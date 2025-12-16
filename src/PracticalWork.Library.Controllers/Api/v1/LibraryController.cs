@@ -49,7 +49,7 @@ public class LibraryController : Controller
     /// <summary>Возврат книги</summary>
     [HttpPost("return")]
     [Produces("application/json")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
     public async Task<IActionResult> ReturnBook([FromBody] ReturnBookRequest request)

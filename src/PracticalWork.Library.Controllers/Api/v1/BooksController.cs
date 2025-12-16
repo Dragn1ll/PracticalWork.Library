@@ -35,7 +35,7 @@ public class BooksController : Controller
     /// <summary>Обновление данных книги</summary>
     [HttpPut("{id:guid}")]
     [Produces("application/json")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
     public async Task<IActionResult> UpdateBook([FromRoute] Guid id, [FromBody] UpdateBookRequest request)
