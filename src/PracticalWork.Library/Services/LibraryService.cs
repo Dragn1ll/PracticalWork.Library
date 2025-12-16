@@ -13,16 +13,13 @@ namespace PracticalWork.Library.Services;
 /// <inheritdoc cref="ILibraryService"/>
 public sealed class LibraryService : ILibraryService
 {
-    private readonly IBookRepository _bookRepository;
-    private readonly IBorrowRepository _borrowRepository;
+    private readonly ILibraryRepository _libraryRepository;
     private readonly IRedisService _redisService;
     private readonly IMinIoService _minIoService;
 
-    public LibraryService(IBookRepository bookRepository, IBorrowRepository borrowRepository, IRedisService redisService, 
-        IMinIoService minIoService)
+    public LibraryService(ILibraryRepository libraryRepository, IRedisService redisService, IMinIoService minIoService)
     {
-        _bookRepository = bookRepository;
-        _borrowRepository = borrowRepository;
+        _libraryRepository = libraryRepository;
         _redisService = redisService;
         _minIoService = minIoService;
     }
@@ -32,7 +29,7 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            var book = await _bookRepository.GetBookById(bookId);
+            var book = await _libraryRepository.GetBookById(bookId);
             if (book.IsArchived)
             {
                 throw new ClientErrorException("Книга заархивирована.");
@@ -47,7 +44,7 @@ public sealed class LibraryService : ILibraryService
                 Status = BookIssueStatus.Issued
             };
             
-            var borrowId = await _borrowRepository.CreateBorrow(borrow);
+            var borrowId = await _libraryRepository.CreateBorrow(borrow);
             
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
             
@@ -70,7 +67,7 @@ public sealed class LibraryService : ILibraryService
 
             if (cache == null)
             {
-                var libraryBooks = await _bookRepository
+                var libraryBooks = await _libraryRepository
                     .GetLibraryBooks(getLibraryBooksDto.Category, getLibraryBooksDto.Author, getLibraryBooksDto.AvailableOnly, 
                         getLibraryBooksDto.Page, getLibraryBooksDto.PageSize);
                 
@@ -92,11 +89,11 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            var borrow = await _borrowRepository.GetBorrowByBookId(bookId);
+            var borrow = await _libraryRepository.GetBorrowByBookId(bookId);
             
             borrow.ReturnBook();
             
-            await _borrowRepository.UpdateBorrow(borrow);
+            await _libraryRepository.UpdateBorrow(borrow);
 
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
         }
@@ -116,7 +113,7 @@ public sealed class LibraryService : ILibraryService
 
             if (cache == null)
             {
-                var book = await _bookRepository.GetBookById(bookId);
+                var book = await _libraryRepository.GetBookById(bookId);
                 if (book.IsArchived)
                 {
                     throw new ClientErrorException("Книга заархивирована.");
@@ -144,7 +141,7 @@ public sealed class LibraryService : ILibraryService
     {
         try
         {
-            var bookId = await _bookRepository.GetBookIdByTitle(title);
+            var bookId = await _libraryRepository.GetBookIdByTitle(title);
             
             return await GetBookDetailsById(bookId);
         }

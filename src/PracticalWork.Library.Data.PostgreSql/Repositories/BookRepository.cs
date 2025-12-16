@@ -48,15 +48,23 @@ public sealed class BookRepository : IBookRepository
 
         return entity == null
             ? throw new BookNotFoundException($"Отсутствует книга с идентификатором: {bookId}")
-            : ConvertToBook(entity);
-    }
-
-    /// <inheritdoc cref="IBookRepository.GetBookIdByTitle"/>
-    public async Task<Guid> GetBookIdByTitle(string title)
-    {
-        var entity = await _appDbContext.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Title == title);
-
-        return entity?.Id ?? throw new BookNotFoundException($"Отсутствует книга с названием: {title}");
+            : new Book
+            {
+                Title = entity.Title,
+                Authors = entity.Authors,
+                Description = entity.Description,
+                Year = entity.Year,
+                Status = entity.Status,
+                CoverImagePath = entity.CoverImagePath,
+                Category = entity switch
+                {
+                    ScientificBookEntity => BookCategory.ScientificBook,
+                    EducationalBookEntity => BookCategory.EducationalBook,
+                    FictionBookEntity => BookCategory.FictionBook,
+                    _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
+                },
+                IsArchived = entity.Status == BookStatus.Archived
+            };
     }
 
     /// <inheritdoc cref="IBookRepository.GetBooks"/>
@@ -76,36 +84,6 @@ public sealed class BookRepository : IBookRepository
             .ToList();
     }
 
-    /// <inheritdoc cref="IBookRepository.GetLibraryBooks"/>
-    public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
-        int page, int pageSize)
-    {
-        var books = GetBookCategoryData(category);
-        var entities = await books.AsNoTracking()
-            .Include(b => b.IssuanceRecords)
-            .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
-                        && b.Status != BookStatus.Archived
-                        && (b.Status == BookStatus.Available || !availableOnly))
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-        
-        return entities.Select(e =>
-            {
-                var lastIssuance = e.IssuanceRecords.LastOrDefault(ir => 
-                    ir.Status == BookIssueStatus.Issued);
-
-                if (lastIssuance == null)
-                {
-                    return new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year);
-                }
-
-                return new LibraryBookDto(e.Title, e.Authors, e.Description, e.Year, lastIssuance.ReaderId,
-                    lastIssuance.BorrowDate, lastIssuance.DueDate);
-            })
-            .ToList();
-    }
-
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>
     public async Task UpdateBook(Guid bookId, Book book)
     {
@@ -121,27 +99,6 @@ public sealed class BookRepository : IBookRepository
         
         _appDbContext.Update(entity);
         await _appDbContext.SaveChangesAsync();
-    }
-
-    private Book ConvertToBook(AbstractBookEntity entity)
-    {
-        return new Book
-        {
-            Title = entity.Title,
-            Authors = entity.Authors,
-            Description = entity.Description,
-            Year = entity.Year,
-            Status = entity.Status,
-            CoverImagePath = entity.CoverImagePath,
-            Category = entity switch
-            {
-                ScientificBookEntity => BookCategory.ScientificBook,
-                EducationalBookEntity => BookCategory.EducationalBook,
-                FictionBookEntity => BookCategory.FictionBook,
-                _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
-            },
-            IsArchived = entity.Status == BookStatus.Archived
-        };
     }
     
     private IQueryable<AbstractBookEntity> GetBookCategoryData(BookCategory category)

@@ -7,24 +7,27 @@ using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Tests.Repositories;
 
-public class BorrowRepositoryTests : IDisposable
+public class LibraryRepositoryTests : IDisposable
 {
     private readonly AppDbContext _context;
-    private readonly BorrowRepository _repository;
+    private readonly LibraryRepository _repository;
     private readonly string _dbName = Guid.NewGuid().ToString();
+    private readonly string _testAuthor = "Test Author";
+    private readonly Guid _readerId = Guid.NewGuid();
+    private readonly Guid _fictionBookId = Guid.NewGuid();
 
     private readonly Guid _activeBookId = Guid.NewGuid();
     private readonly Guid _returnedBookId = Guid.NewGuid();
     private readonly Guid _activeReaderId = Guid.NewGuid();
 
-    public BorrowRepositoryTests()
+    public LibraryRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: _dbName)
             .Options;
 
         _context = new AppDbContext(options);
-        _repository = new BorrowRepository(_context);
+        _repository = new LibraryRepository(_context);
         
         SeedData();
     }
@@ -57,6 +60,18 @@ public class BorrowRepositoryTests : IDisposable
             BookId = _activeBookId,
             ReaderId = Guid.NewGuid(),
             Status = BookIssueStatus.Returned
+        });
+        
+        _context.Books.AddRange(new List<AbstractBookEntity>
+        {
+            new FictionBookEntity 
+            {
+                Id = _fictionBookId, 
+                Title = "Fiction Title", 
+                Authors = new List<string> { _testAuthor, "Another Author" },
+                Status = BookStatus.Borrow,
+                Description = "Desc 1", Year = 2000, CoverImagePath = "path/1"
+            }
         });
         
         _context.SaveChanges();
@@ -168,5 +183,67 @@ public class BorrowRepositoryTests : IDisposable
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => _repository.UpdateBorrow(wrongReaderBorrow));
+    }
+    
+    [Fact]
+    public async Task GetLibraryBooks_ShouldFilterOutArchivedBooks()
+    {
+        // Act
+        var books = await _repository.GetLibraryBooks(BookCategory.ScientificBook, _testAuthor, 
+            false, 1, 10);
+
+        // Assert
+        Assert.Single(books);
+        Assert.Equal("Scientific Title", books.First().Title);
+    }
+    
+    [Fact]
+    public async Task GetLibraryBooks_ShouldFilterByAvailableOnly()
+    {
+        // Act
+        var books = await _repository.GetLibraryBooks(BookCategory.EducationalBook, _testAuthor, 
+            true, 1, 10);
+
+        // Assert
+        Assert.Single(books);
+        Assert.Equal("Available Book Title", books.First().Title);
+    }
+
+    [Fact]
+    public async Task GetLibraryBooks_ShouldReturnCorrectLastIssuanceRecord()
+    {
+        // Act
+        var books = await _repository.GetLibraryBooks(BookCategory.EducationalBook, _testAuthor, 
+            false, 1, 10);
+
+        // Assert
+        Assert.Equal(2, books.Count); 
+        
+        var borrowedBook = books.Single(b => b.Title == "Borrowed Book Title");
+        
+        Assert.Equal(_readerId, borrowedBook.ReaderId);
+        Assert.Equal(DateOnly.FromDateTime(DateTime.Today.AddDays(-10)), borrowedBook.BorrowDate);
+    }
+    
+    
+    
+    [Fact]
+    public async Task GetBookIdByTitle_ShouldReturnId_WhenFound()
+    {
+        // Arrange
+        var title = "Fiction Title";
+
+        // Act
+        var resultId = await _repository.GetBookIdByTitle(title);
+
+        // Assert
+        Assert.Equal(_fictionBookId, resultId);
+    }
+    
+    [Fact]
+    public async Task GetBookIdByTitle_ShouldThrowArgumentException_WhenNotFound()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBookIdByTitle("Missing Title"));
     }
 }

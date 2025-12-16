@@ -172,26 +172,6 @@ public class BookRepositoryTests : IDisposable
     }
     
     [Fact]
-    public async Task GetBookIdByTitle_ShouldReturnId_WhenFound()
-    {
-        // Arrange
-        var title = "Fiction Title";
-
-        // Act
-        var resultId = await _repository.GetBookIdByTitle(title);
-
-        // Assert
-        Assert.Equal(_fictionBookId, resultId);
-    }
-    
-    [Fact]
-    public async Task GetBookIdByTitle_ShouldThrowArgumentException_WhenNotFound()
-    {
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBookIdByTitle("Missing Title"));
-    }
-    
-    [Fact]
     public async Task UpdateBook_ShouldUpdateAllFieldsAndSave()
     {
         // Arrange
@@ -256,42 +236,5 @@ public class BookRepositoryTests : IDisposable
 
         // Assert
         Assert.Equal(2, books.Count);
-    }
-    
-    [Fact]
-    public async Task GetLibraryBooks_ShouldFilterOutArchivedBooks()
-    {
-        // Act
-        var books = await _repository.GetLibraryBooks(BookCategory.ScientificBook, _testAuthor, false, 1, 10);
-
-        // Assert
-        Assert.Single(books);
-        Assert.Equal("Scientific Title", books.First().Title);
-    }
-    
-    [Fact]
-    public async Task GetLibraryBooks_ShouldFilterByAvailableOnly()
-    {
-        // Act
-        var books = await _repository.GetLibraryBooks(BookCategory.EducationalBook, _testAuthor, true, 1, 10);
-
-        // Assert
-        Assert.Single(books);
-        Assert.Equal("Available Book Title", books.First().Title);
-    }
-
-    [Fact]
-    public async Task GetLibraryBooks_ShouldReturnCorrectLastIssuanceRecord()
-    {
-        // Act
-        var books = await _repository.GetLibraryBooks(BookCategory.EducationalBook, _testAuthor, false, 1, 10);
-
-        // Assert
-        Assert.Equal(2, books.Count); 
-        
-        var borrowedBook = books.Single(b => b.Title == "Borrowed Book Title");
-        
-        Assert.Equal(_readerId, borrowedBook.ReaderId);
-        Assert.Equal(DateOnly.FromDateTime(DateTime.Today.AddDays(-10)), borrowedBook.BorrowDate);
     }
 }

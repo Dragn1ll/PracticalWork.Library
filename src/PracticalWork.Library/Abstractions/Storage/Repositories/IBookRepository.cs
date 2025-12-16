@@ -22,13 +22,6 @@ public interface IBookRepository
     /// <param name="bookId">Идентификатор книги</param>
     /// <returns>Книга</returns>
     Task<Book> GetBookById(Guid bookId);
-    
-    /// <summary>
-    /// Получить идентификатор книги по названию
-    /// </summary>
-    /// <param name="title">Название книги</param>
-    /// <returns>Идентификатор книги</returns>
-    Task<Guid> GetBookIdByTitle(string title);
 
     /// <summary>
     /// Получить список книг
@@ -40,18 +33,6 @@ public interface IBookRepository
     /// <param name="pageSize">Размер страниц</param>
     /// <returns>Список книг</returns>
     Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
-    
-    /// <summary>
-    /// Получить список книг библиотеки
-    /// </summary>
-    /// <param name="category">Категория книги</param>
-    /// <param name="author">Актор книги</param>
-    /// <param name="availableOnly">Доступна ли книга выдаче</param>
-    /// <param name="page">Номер страницы</param>
-    /// <param name="pageSize">Размер страницв</param>
-    /// <returns></returns>
-    Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, int page, 
-        int pageSize);
     
     /// <summary>
     /// Обновить данные книги
