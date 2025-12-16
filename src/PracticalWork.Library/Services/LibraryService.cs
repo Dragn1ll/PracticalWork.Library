@@ -38,6 +38,8 @@ public sealed class LibraryService : ILibraryService
             DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30)),
             Status = BookIssueStatus.Issued
         };
+        
+        // todo сделать проверку на архиную книгу
 
         try
         {

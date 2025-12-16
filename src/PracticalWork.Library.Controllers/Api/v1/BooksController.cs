@@ -73,11 +73,10 @@ public class BooksController : Controller
     
     /// <summary>Добавление деталей книг</summary>
     [HttpPost("{id:guid}/details")]
-    [Produces("application/json")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public async Task<IActionResult> AddBookDetails([FromRoute] Guid id, [FromBody] AddBookDetailsRequest request)
+    public async Task<IActionResult> AddBookDetails([FromRoute] Guid id, [FromForm] AddBookDetailsRequest request)
     {
         await _bookService.CreateBookDetails(id, request.CoverImage, request.Description);
         

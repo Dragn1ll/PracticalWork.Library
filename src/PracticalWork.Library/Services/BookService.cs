@@ -72,24 +72,29 @@ public sealed class BookService : IBookService
         try
         {
             var book = await _bookRepository.GetBookById(bookId);
-            
+
             if (!book.CanBeArchived())
             {
                 throw new ArgumentException("Книга не может быть переведена в архив.");
             }
+
             if (book.IsArchived)
             {
                 throw new ArgumentException("Книга уже переведена в архив.");
             }
-            
+
             await InvalidationBookListCache(book);
             await InvalidationLibraryBookCache(book);
-            
+
             book.Archive();
-            
+
             await _bookRepository.UpdateBook(bookId, book);
 
             return new ArchiveBookDto(bookId, book.Title);
+        }
+        catch (ArgumentException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
