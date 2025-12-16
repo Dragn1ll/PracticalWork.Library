@@ -65,7 +65,8 @@ public sealed class BookRepository : IBookRepository
     {
         var books = GetBookCategoryData(category);
         var entities = await books.AsNoTracking()
-            .Where(b => b.Authors.Contains(author) && b.Status == status)
+            .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
+                        && b.Status == status)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -82,8 +83,9 @@ public sealed class BookRepository : IBookRepository
         var books = GetBookCategoryData(category);
         var entities = await books.AsNoTracking()
             .Include(b => b.IssuanceRecords)
-            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived
-                                                   && b.Status == BookStatus.Available || !availableOnly)
+            .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
+                        && b.Status != BookStatus.Archived
+                        && (b.Status == BookStatus.Available || !availableOnly))
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -149,6 +151,7 @@ public sealed class BookRepository : IBookRepository
             BookCategory.ScientificBook => _appDbContext.ScientificBooks,
             BookCategory.EducationalBook => _appDbContext.EducationalBooks,
             BookCategory.FictionBook => _appDbContext.FictionBooks,
+            BookCategory.Default => _appDbContext.Books,
             _ => throw new ArgumentException($"Неподдерживаемый тип книги: { category }")
         };
     }
