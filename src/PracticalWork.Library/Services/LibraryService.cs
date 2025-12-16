@@ -30,19 +30,23 @@ public sealed class LibraryService : ILibraryService
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
     public async Task<Guid> BorrowBook(Guid bookId, Guid readerId)
     {
-        var borrow = new Borrow
-        {
-            BookId = bookId,
-            ReaderId = readerId,
-            BorrowDate = DateOnly.FromDateTime(DateTime.Now),
-            DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30)),
-            Status = BookIssueStatus.Issued
-        };
-        
-        // todo сделать проверку на архиную книгу
-
         try
         {
+            var book = await _bookRepository.GetBookById(bookId);
+            if (book.IsArchived)
+            {
+                throw new ClientErrorException("Книга заархивирована.");
+            }
+            
+            var borrow = new Borrow
+            {
+                BookId = bookId,
+                ReaderId = readerId,
+                BorrowDate = DateOnly.FromDateTime(DateTime.Now),
+                DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30)),
+                Status = BookIssueStatus.Issued
+            };
+            
             var borrowId = await _borrowRepository.CreateBorrow(borrow);
             
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
@@ -113,6 +117,11 @@ public sealed class LibraryService : ILibraryService
             if (cache == null)
             {
                 var book = await _bookRepository.GetBookById(bookId);
+                if (book.IsArchived)
+                {
+                    throw new ClientErrorException("Книга заархивирована.");
+                }
+                
                 var coverImagePath = await _minIoService.GetFileUrlAsync(book.CoverImagePath);
                 var bookDetails = new BookDetailsDto(bookId, book.Title, book.Authors, book.Description, book.Year, 
                     book.Category, book.Status, coverImagePath, book.IsArchived);
