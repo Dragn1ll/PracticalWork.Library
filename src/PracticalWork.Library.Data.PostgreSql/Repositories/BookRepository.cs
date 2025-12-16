@@ -63,14 +63,15 @@ public sealed class BookRepository : IBookRepository
     public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
         int page, int pageSize)
     {
-        var entities = await _appDbContext.Books.AsNoTracking()
+        var books = GetBookCategoryData(category);
+        var entities = await books.AsNoTracking()
             .Where(b => b.Authors.Contains(author) && b.Status == status)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        return entities.Where(b => ConvertToBookCategory(b) == category)
-            .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, e.Year, e.CoverImagePath))
+        return entities.Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, 
+                e.Year, e.CoverImagePath))
             .ToList();
     }
 
@@ -78,21 +79,16 @@ public sealed class BookRepository : IBookRepository
     public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
         int page, int pageSize)
     {
-        Predicate<AbstractBookEntity> predicate = _ => true;
-        if (availableOnly)
-        {
-             predicate = b => b.Status == BookStatus.Available;
-        }
-
-        var entities = await _appDbContext.Books.AsNoTracking()
+        var books = GetBookCategoryData(category);
+        var entities = await books.AsNoTracking()
             .Include(b => b.IssuanceRecords)
-            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived)
+            .Where(b => b.Authors.Contains(author) && b.Status != BookStatus.Archived
+                                                   && b.Status == BookStatus.Available || !availableOnly)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
         
-        return entities.Where(b => predicate(b) && ConvertToBookCategory(b) == category)
-            .Select(e =>
+        return entities.Select(e =>
             {
                 var lastIssuance = e.IssuanceRecords.LastOrDefault(ir => 
                     ir.Status == BookIssueStatus.Issued);
@@ -135,19 +131,25 @@ public sealed class BookRepository : IBookRepository
             Year = entity.Year,
             Status = entity.Status,
             CoverImagePath = entity.CoverImagePath,
-            Category = ConvertToBookCategory(entity),
+            Category = entity switch
+            {
+                ScientificBookEntity => BookCategory.ScientificBook,
+                EducationalBookEntity => BookCategory.EducationalBook,
+                FictionBookEntity => BookCategory.FictionBook,
+                _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
+            },
             IsArchived = entity.Status == BookStatus.Archived
         };
     }
-
-    private BookCategory ConvertToBookCategory(AbstractBookEntity entity)
+    
+    private IQueryable<AbstractBookEntity> GetBookCategoryData(BookCategory category)
     {
-        return entity switch
+        return category switch
         {
-            ScientificBookEntity => BookCategory.ScientificBook,
-            EducationalBookEntity => BookCategory.EducationalBook,
-            FictionBookEntity => BookCategory.FictionBook,
-            _ => throw new ArgumentException($"Неподдерживаемый тип книги: {entity.GetType()}")
+            BookCategory.ScientificBook => _appDbContext.ScientificBooks,
+            BookCategory.EducationalBook => _appDbContext.EducationalBooks,
+            BookCategory.FictionBook => _appDbContext.FictionBooks,
+            _ => throw new ArgumentException($"Неподдерживаемый тип книги: { category }")
         };
     }
 }
