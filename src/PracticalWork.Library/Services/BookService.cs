@@ -2,7 +2,6 @@
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
-using PracticalWork.Library.Dto;
 using PracticalWork.Library.Dto.Input;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
@@ -35,7 +34,7 @@ public sealed class BookService : IBookService
         }
         catch (Exception ex)
         {
-            throw new BookServiceException("Ошибка создания книги!", ex);
+            throw new BookServiceException("Ошибка создания книги.", ex);
         }
     }
 
@@ -48,19 +47,19 @@ public sealed class BookService : IBookService
 
             if (book.IsArchived)
             {
-                throw new ArgumentException("Книга находится в архиве.");
+                throw new ClientErrorException("Книга находится в архиве.");
             }
-            
+
             await InvalidationBookListCache(book);
             await InvalidationLibraryBookCache(book);
-            
+
             book.Title = updateBookDto.Title;
             book.Authors = updateBookDto.Authors;
             book.Year = updateBookDto.Year;
-            
+
             await _bookRepository.UpdateBook(bookId, book);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new BookServiceException("Ошибка обновления данных книги!", ex);
         }
@@ -75,12 +74,12 @@ public sealed class BookService : IBookService
 
             if (!book.CanBeArchived())
             {
-                throw new ArgumentException("Книга не может быть переведена в архив.");
+                throw new ClientErrorException("Книга не может быть переведена в архив.");
             }
 
             if (book.IsArchived)
             {
-                throw new ArgumentException("Книга уже переведена в архив.");
+                throw new ClientErrorException("Книга уже переведена в архив.");
             }
 
             await InvalidationBookListCache(book);
@@ -92,11 +91,7 @@ public sealed class BookService : IBookService
 
             return new ArchiveBookDto(bookId, book.Title);
         }
-        catch (ArgumentException)
-        {
-            throw;
-        }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new BookServiceException("Ошибка перевода книги в архив!", ex);
         }
@@ -136,14 +131,14 @@ public sealed class BookService : IBookService
     /// <inheritdoc cref="IBookService.CreateBookDetails"/>
     public async Task CreateBookDetails(Guid bookId, IFormFile coverImage, string description)
     {
+        var extension = Path.GetExtension(coverImage.FileName);
+        if (!IsValidImageExtension(extension) || coverImage.Length > 5 * 1024 * 1024)
+        {
+            throw new ClientErrorException("Неверный формат изображения!");
+        }
+
         try
         {
-            var extension = Path.GetExtension(coverImage.FileName);
-            if (!IsValidImageExtension(extension) || coverImage.Length > 5 * 1024 * 1024)
-            {
-                throw new ArgumentException("Неверный формат изображения!");
-            }
-            
             var book = await _bookRepository.GetBookById(bookId);
 
             book.UpdateDetails(description,

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Data.PostgreSql.Entities;
-using PracticalWork.Library.Dto;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
@@ -23,7 +23,8 @@ public class ReaderRepository : IReaderRepository
     {
         if (_appDbContext.Readers.Any(r => r.PhoneNumber == reader.PhoneNumber))
         {
-            throw new ArgumentException($"Читатель с таким номером телефона уже существует: {reader.PhoneNumber}");
+            throw new ReaderAlreadyExistsException(
+                $"Читатель с таким номером телефона уже существует: {reader.PhoneNumber}");
         }
 
         var entity = new ReaderEntity
@@ -43,12 +44,8 @@ public class ReaderRepository : IReaderRepository
     /// <inheritdoc cref="IReaderRepository.GetReaderById"/>
     public async Task<Reader> GetReaderById(Guid readerId)
     {
-        var entity = await _appDbContext.Readers.FindAsync(readerId);
-
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует читатель с идентификатором: {readerId}");
-        }
+        var entity = await _appDbContext.Readers.FindAsync(readerId)
+            ?? throw new ReaderNotFoundException($"Отсутствует читатель с идентификатором: {readerId}");
         
         return new Reader
         {
@@ -68,26 +65,19 @@ public class ReaderRepository : IReaderRepository
             .Include(r => r.BorrowedRecords)
             .FirstOrDefaultAsync();
 
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует читатель с идентификатором: {readerId}");
-        }
-
-        return entity.BorrowedRecords
-            .Where(b => b.Status == BookIssueStatus.Issued)
-            .Select(b => new BorrowedBookDto(b.BookId, b.BorrowDate, b.DueDate))
-            .ToList();
+        return entity == null
+            ? throw new ReaderNotFoundException($"Отсутствует читатель с идентификатором: {readerId}")
+            : entity.BorrowedRecords
+                .Where(b => b.Status == BookIssueStatus.Issued)
+                .Select(b => new BorrowedBookDto(b.BookId, b.BorrowDate, b.DueDate))
+                .ToList();
     }
 
     /// <inheritdoc cref="IReaderRepository.UpdateReader"/>
     public async Task UpdateReader(Guid readerId, Reader reader)
     {
-        var entity = await _appDbContext.Readers.FindAsync(readerId);
-
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует читатель с идентификатором: {readerId}");
-        }
+        var entity = await _appDbContext.Readers.FindAsync(readerId)
+                     ?? throw new ReaderNotFoundException($"Отсутствует читатель с идентификатором: {readerId}");
         
         entity.FullName = reader.FullName;
         entity.PhoneNumber = reader.PhoneNumber;

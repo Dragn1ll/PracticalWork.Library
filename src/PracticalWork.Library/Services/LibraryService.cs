@@ -49,7 +49,7 @@ public sealed class LibraryService : ILibraryService
             
             return borrowId;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new LibraryServiceException("Ошибка создания записи выдачи книги!", ex);
         }
@@ -96,7 +96,7 @@ public sealed class LibraryService : ILibraryService
 
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new LibraryServiceException("Ошибка возвращения книги библиотеки!", ex);
         }
@@ -124,7 +124,7 @@ public sealed class LibraryService : ILibraryService
 
             return cache;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new LibraryServiceException("Ошибка получения деталей книги по идентификатору!", ex);
         }
@@ -139,7 +139,7 @@ public sealed class LibraryService : ILibraryService
             
             return await GetBookDetailsById(bookId);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new LibraryServiceException("Ошибка получения деталей книги по названию!", ex);
         }

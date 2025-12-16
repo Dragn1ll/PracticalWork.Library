@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Enums;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
@@ -38,12 +39,8 @@ public class BorrowRepository : IBorrowRepository
     public async Task<Borrow> GetBorrowByBookId(Guid bookId)
     {
         var entity = await _appDbContext.BookBorrows. AsNoTracking()
-            .SingleOrDefaultAsync(b => b.BookId == bookId && b.Status == BookIssueStatus.Issued);
-
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует активная запись о выдачи книги с идентификатором: {bookId}");
-        }
+            .SingleOrDefaultAsync(b => b.BookId == bookId && b.Status == BookIssueStatus.Issued)
+            ?? throw new BorrowNotFoundException($"Отсутствует активная запись о выдачи книги с идентификатором: {bookId}");
         
         return new Borrow
         {
@@ -59,13 +56,9 @@ public class BorrowRepository : IBorrowRepository
     public async Task UpdateBorrow(Borrow borrow)
     {
         var entity = await _appDbContext.BookBorrows 
-            .SingleOrDefaultAsync(b => b.BookId == borrow.BookId && b.ReaderId == borrow.ReaderId 
-                                                                 && b.Status == BookIssueStatus.Issued);
-
-        if (entity == null)
-        {
-            throw new ArgumentException("Отсутствует активная запись о выдачи книги");
-        }
+                         .SingleOrDefaultAsync(b => b.BookId == borrow.BookId && b.ReaderId == borrow.ReaderId 
+                                                                              && b.Status == BookIssueStatus.Issued)
+            ?? throw new BorrowNotFoundException("Отсутствует активная запись о выдачи книги");
     
         entity.ReturnDate = borrow.ReturnDate;
         entity.Status = borrow.Status;

@@ -1,7 +1,7 @@
+using System.Text;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
-using PracticalWork.Library.Dto;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
@@ -28,7 +28,7 @@ public sealed class ReaderService : IReaderService
         {
             return await _readerRepository.CreateReader(reader);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new ReaderServiceException("Ошибка создания карточки читателя!", ex);
         }
@@ -37,20 +37,21 @@ public sealed class ReaderService : IReaderService
     /// <inheritdoc cref="IReaderService.ExtendValidity"/>
     public async Task ExtendValidity(Guid readerId, DateOnly newExpiryDate)
     {
+        
+        if (newExpiryDate < DateOnly.FromDateTime(DateTime.Now))
+        {
+            throw new ClientErrorException("Дата продления не может быть раньше сегодняшней!");
+        }
+        
         try
         {
-            if (newExpiryDate < DateOnly.FromDateTime(DateTime.Now))
-            {
-                throw new ArgumentException("Дата продления не может быть раньше сегодняшней!");
-            }
-            
             var reader = await _readerRepository.GetReaderById(readerId);
             
             reader.UpdateExpiryDate(newExpiryDate);
             
             await _readerRepository.UpdateReader(readerId, reader);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new ReaderServiceException("Ошибка продления карточки читателя!", ex);
         }
@@ -67,14 +68,25 @@ public sealed class ReaderService : IReaderService
 
             if (books.Any())
             {
-                throw new ReaderServiceException("У пользователя есть взятые книги!", books);
+                var sb = new StringBuilder("У пользователя есть взятые книги:\n");
+                foreach (var book in books)
+                {
+                    sb.Append(book.BookId);
+                    sb.Append(" - Дата выдачи: ");
+                    sb.Append(book.BorrowDate.ToShortDateString());
+                    sb.Append(" - Срок сдачи: ");
+                    sb.Append(book.DueDate.ToShortDateString());
+                    sb.Append('\n');
+                }
+                
+                throw new ClientErrorException(sb.ToString());
             }
             
             reader.DeActiveReader();
             
             await _readerRepository.UpdateReader(readerId, reader);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new ReaderServiceException("Ошибка закрытия карточки читателя!", ex);
         }
@@ -97,7 +109,7 @@ public sealed class ReaderService : IReaderService
             
             return cache;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ClientErrorException)
         {
             throw new ReaderServiceException("Ошибка получения взятых книг!", ex);
         }

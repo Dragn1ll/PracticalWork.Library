@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Data.PostgreSql.Entities;
-using PracticalWork.Library.Dto;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Enums;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Data.PostgreSql.Repositories;
@@ -46,12 +46,9 @@ public sealed class BookRepository : IBookRepository
     {
         var entity = await _appDbContext.Books.FindAsync(bookId);
 
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует книга с идентификатором: {bookId}");
-        }
-        
-        return ConvertToBook(entity);
+        return entity == null
+            ? throw new BookNotFoundException($"Отсутствует книга с идентификатором: {bookId}")
+            : ConvertToBook(entity);
     }
 
     /// <inheritdoc cref="IBookRepository.GetBookIdByTitle"/>
@@ -59,12 +56,7 @@ public sealed class BookRepository : IBookRepository
     {
         var entity = await _appDbContext.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Title == title);
 
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует книга с названием: {title}");
-        }
-        
-        return entity.Id;
+        return entity?.Id ?? throw new BookNotFoundException($"Отсутствует книга с названием: {title}");
     }
 
     /// <inheritdoc cref="IBookRepository.GetBooks"/>
@@ -119,13 +111,9 @@ public sealed class BookRepository : IBookRepository
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>
     public async Task UpdateBook(Guid bookId, Book book)
     {
-        var entity = await _appDbContext.Books.FindAsync(bookId);
+        var entity = await _appDbContext.Books.FindAsync(bookId) 
+                     ?? throw new BookNotFoundException($"Отсутствует книга с идентификатором: {bookId}");
 
-        if (entity == null)
-        {
-            throw new ArgumentException($"Отсутствует книга с идентификатором: {bookId}");
-        }
-        
         entity.Title = book.Title;
         entity.Authors = book.Authors;
         entity.Description = book.Description;
