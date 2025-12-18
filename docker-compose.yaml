@@ -1,8 +1,8 @@
 services:
   # PostgreSQL database
-  postgres:
+  library-db:
    image: postgres
-   container_name: postgres
+   container_name: library_db
    ports:
     - "5433:5432"
    env_file: .env
@@ -12,7 +12,7 @@ services:
   # Redis cache
   redis:
    image: redis
-   container_name: redis
+   container_name: cache
    ports:
     - "6379:6379"
    volumes:
@@ -38,7 +38,8 @@ services:
    ports:
     - "5050:80"
    depends_on:
-    - postgres
+    - library-db
+    - reporting-db
    volumes:
     - pgadmin_data:/var/lib/pgadmin
 
