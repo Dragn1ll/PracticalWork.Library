@@ -13,7 +13,7 @@ public sealed record BookCreatedEvent(
     Guid BookId,
     string Title,
     string Category,
-    string[] Authors,
+    IReadOnlyList<string> Authors,
     int Year,
     DateTime CreatedAt
 ) : BaseLibraryEvent("book.created");

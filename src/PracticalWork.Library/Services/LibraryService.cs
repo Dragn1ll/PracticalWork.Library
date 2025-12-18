@@ -5,6 +5,7 @@ using PracticalWork.Library.Dto;
 using PracticalWork.Library.Dto.Input;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Exceptions;
+using PracticalWork.Library.MessageBroker.Events.Book;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -16,12 +17,15 @@ public sealed class LibraryService : ILibraryService
     private readonly ILibraryRepository _libraryRepository;
     private readonly IRedisService _redisService;
     private readonly IMinIoService _minIoService;
+    private readonly IRabbitMqProducer _producer;
 
-    public LibraryService(ILibraryRepository libraryRepository, IRedisService redisService, IMinIoService minIoService)
+    public LibraryService(ILibraryRepository libraryRepository, IRedisService redisService, IMinIoService minIoService,
+        IRabbitMqProducer producer)
     {
         _libraryRepository = libraryRepository;
         _redisService = redisService;
         _minIoService = minIoService;
+        _producer = producer;
     }
     
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
@@ -30,9 +34,9 @@ public sealed class LibraryService : ILibraryService
         try
         {
             var book = await _libraryRepository.GetBookById(bookId);
-            if (book.IsArchived)
+            if (!book.CanBeBorrowed())
             {
-                throw new ClientErrorException("Книга заархивирована.");
+                throw new ClientErrorException("Книга не может быть выдана.");
             }
             
             var borrow = new Borrow
@@ -47,6 +51,9 @@ public sealed class LibraryService : ILibraryService
             var borrowId = await _libraryRepository.CreateBorrow(borrow);
             
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
+            
+            await _producer.PublishEventAsync(new BookBorrowedEvent(bookId, readerId, book.Title, "", 
+                borrow.BorrowDate.ToDateTime(default), borrow.DueDate.ToDateTime(default)));
             
             return borrowId;
         }
@@ -96,6 +103,9 @@ public sealed class LibraryService : ILibraryService
             await _libraryRepository.UpdateBorrow(borrow);
 
             await _redisService.RemoveAsync($"reader:books:{borrow.ReaderId}");
+            
+            await _producer.PublishEventAsync(new BookReturnedEvent(bookId, borrow.ReaderId, "", "", 
+                borrow.ReturnDate.ToDateTime(default)));
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {

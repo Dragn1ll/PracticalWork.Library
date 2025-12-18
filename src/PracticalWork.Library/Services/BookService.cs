@@ -5,6 +5,7 @@ using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto.Input;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Exceptions;
+using PracticalWork.Library.MessageBroker.Events.Book;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -16,12 +17,15 @@ public sealed class BookService : IBookService
     private readonly IBookRepository _bookRepository;
     private readonly IRedisService _redisService;
     private readonly IMinIoService _minIoService;
+    private readonly IRabbitMqProducer _producer;
 
-    public BookService(IBookRepository bookRepository, IRedisService redisService, IMinIoService minIoService)
+    public BookService(IBookRepository bookRepository, IRedisService redisService, IMinIoService minIoService,
+        IRabbitMqProducer producer)
     {
         _bookRepository = bookRepository;
         _redisService = redisService;
         _minIoService = minIoService;
+        _producer = producer;
     }
 
     /// <inheritdoc cref="IBookService.CreateBook"/>
@@ -30,7 +34,12 @@ public sealed class BookService : IBookService
         book.Status = BookStatus.Available;
         try
         {
-            return await _bookRepository.CreateBook(book);
+            var bookId = await _bookRepository.CreateBook(book);
+
+            await _producer.PublishEventAsync(new BookCreatedEvent(bookId, book.Title, book.Category.ToString(), 
+                book.Authors, book.Year, DateTime.UtcNow));
+
+            return bookId;
         }
         catch (Exception ex)
         {
@@ -88,6 +97,8 @@ public sealed class BookService : IBookService
             book.Archive();
 
             await _bookRepository.UpdateBook(bookId, book);
+
+            await _producer.PublishEventAsync(new BookArchivedEvent(bookId, book.Title, "", DateTime.UtcNow));
 
             return new ArchiveBookDto(bookId, book.Title);
         }
