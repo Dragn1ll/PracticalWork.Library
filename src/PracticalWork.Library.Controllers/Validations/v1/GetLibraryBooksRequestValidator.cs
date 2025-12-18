@@ -10,10 +10,6 @@ public class GetLibraryBooksRequestValidator : AbstractValidator<GetLibraryBooks
         RuleFor(x => x.Category)
             .IsInEnum().WithMessage("Категория должна быть от 1 до 3.");
         
-        RuleFor(x => x.Author)
-            .NotEmpty().WithMessage("Автор обязателен к заполнению.")
-            .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage("Автор должен быть непустой строкой.");
-        
         RuleFor(x => x.Page)
             .NotEmpty().WithMessage("Надо указать номер страницы.")
             .GreaterThanOrEqualTo(1).WithMessage("Номер страницы должен быть минимум 1.");

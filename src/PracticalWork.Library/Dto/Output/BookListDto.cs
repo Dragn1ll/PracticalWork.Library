@@ -23,10 +23,10 @@ public sealed class BookListDto
     /// <summary>Путь к изображению обложки</summary>
     public string CoverImagePath { get; set; }
 
-    public BookListDto(Guid bookId, string title, IReadOnlyList<string> authors, string description, int year,
+    public BookListDto(Guid id, string title, IReadOnlyList<string> authors, string description, int year,
         string coverImagePath)
     {
-        Id = bookId;
+        Id = id;
         Title = title;
         Authors = authors;
         Description = description;

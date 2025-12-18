@@ -30,9 +30,9 @@ public sealed class LibraryService : ILibraryService
         try
         {
             var book = await _libraryRepository.GetBookById(bookId);
-            if (book.IsArchived)
+            if (!book.CanBeBorrowed())
             {
-                throw new ClientErrorException("Книга заархивирована.");
+                throw new ClientErrorException("Книга не может быть выдана.");
             }
             
             var borrow = new Borrow
