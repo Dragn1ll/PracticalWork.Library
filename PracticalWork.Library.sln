@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Library.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Library.SharedKernel", "PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj", "{7F1BF665-9D82-4852-BB9D-6EFA67EF9144}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Library.MessageBroker", "PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj", "{1F4E166E-854B-4388-BDAD-4C161DB4179A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{7F1BF665-9D82-4852-BB9D-6EFA67EF9144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F1BF665-9D82-4852-BB9D-6EFA67EF9144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F1BF665-9D82-4852-BB9D-6EFA67EF9144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F4E166E-854B-4388-BDAD-4C161DB4179A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F4E166E-854B-4388-BDAD-4C161DB4179A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F4E166E-854B-4388-BDAD-4C161DB4179A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F4E166E-854B-4388-BDAD-4C161DB4179A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{C340B6F8-F230-A5B4-337D-6191E887F844} = {5EF1ADE2-5A1C-434E-83B7-32EFF5DF0A11}
 		{12A79ED0-F087-42B3-A541-B2B6190587BB} = {B9247C0E-BEBD-4F12-B8B2-2BD81B412924}
 		{7F1BF665-9D82-4852-BB9D-6EFA67EF9144} = {7E366027-D18D-45C9-928C-D527C6271DC9}
+		{1F4E166E-854B-4388-BDAD-4C161DB4179A} = {7E366027-D18D-45C9-928C-D527C6271DC9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C42A2C9B-25DC-4CF3-8FF1-E3CE64B080D6}

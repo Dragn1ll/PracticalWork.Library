@@ -9,8 +9,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="RabbitMQ.Client" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
     <ProjectReference Include="..\..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
   </ItemGroup>
 </Project>
