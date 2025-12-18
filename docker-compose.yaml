@@ -6,6 +6,8 @@ services:
    ports:
     - "5433:5432"
    env_file: .env
+   environment:
+    - POSTGRES_DB=library
    volumes:
     - postgres_data:/var/lib/postgresql
   
@@ -13,8 +15,10 @@ services:
    image: postgres
    container_name: reporting_db
    ports:
-    - "5433:5432"
+    - "5434:5432"
    env_file: .env
+   environment:
+    - POSTGRES_DB=reporting
    volumes:
     - postgres_data:/var/lib/postgresql
 
