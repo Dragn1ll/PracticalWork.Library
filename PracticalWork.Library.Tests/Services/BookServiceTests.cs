@@ -17,6 +17,7 @@ public class BookServiceTests
     private readonly Mock<IBookRepository> _bookRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMinIoService> _minIoServiceMock;
+    private readonly Mock<IRabbitMqProducer> _producerMock;
     private readonly IBookService _bookService;
 
     public BookServiceTests()
@@ -24,11 +25,13 @@ public class BookServiceTests
         _bookRepositoryMock = new Mock<IBookRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _minIoServiceMock = new Mock<IMinIoService>();
+        _producerMock = new Mock<IRabbitMqProducer>();
 
         _bookService = new BookService(
             _bookRepositoryMock.Object,
             _redisServiceMock.Object,
-            _minIoServiceMock.Object
+            _minIoServiceMock.Object,
+            _producerMock.Object
         );
     }
     private Mock<IFormFile> CreateMockFormFile(string fileName, string contentType, long length)

@@ -1,4 +1,5 @@
 using Moq;
+using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto.Input;
@@ -15,6 +16,7 @@ public class LibraryServiceTests
     private readonly Mock<ILibraryRepository> _libraryRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMinIoService> _minIoServiceMock;
+    private readonly Mock<IRabbitMqProducer> _producerMock;
     private readonly LibraryService _libraryService;
 
     public LibraryServiceTests()
@@ -22,11 +24,13 @@ public class LibraryServiceTests
         _libraryRepositoryMock = new Mock<ILibraryRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _minIoServiceMock = new Mock<IMinIoService>();
+        _producerMock = new Mock<IRabbitMqProducer>();
 
         _libraryService = new LibraryService(
             _libraryRepositoryMock.Object,
             _redisServiceMock.Object,
-            _minIoServiceMock.Object
+            _minIoServiceMock.Object,
+            _producerMock.Object
         );
     }
 
