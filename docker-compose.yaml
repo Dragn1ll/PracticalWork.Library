@@ -67,7 +67,7 @@ services:
     - redis
   
   rabbitmq:
-   image: rabbitmq
+   image: rabbitmq:4-management
    container_name: rabbitmq
    ports:
     - "5672:5672"

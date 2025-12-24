@@ -17,6 +17,7 @@ public class RabbitMqProducer : IRabbitMqProducer, IAsyncDisposable
         var factory = new ConnectionFactory
         {
             HostName = options.Value.HostName,
+            Port = options.Value.Port,
             UserName = options.Value.UserName,
             Password = options.Value.Password,
             VirtualHost = options.Value.VirtualHost,
@@ -28,7 +29,8 @@ public class RabbitMqProducer : IRabbitMqProducer, IAsyncDisposable
         _connectionTask = new Lazy<Task<IConnection>>(() => factory.CreateConnectionAsync());
     }
 
-    public async Task PublishEventAsync(BaseLibraryEvent libraryEvent, CancellationToken cancellationToken = default)
+    public async Task PublishEventAsync<TEvent>(TEvent libraryEvent, CancellationToken cancellationToken = default) 
+        where TEvent : BaseLibraryEvent
     {
         var connection = await _connectionTask.Value;
 
