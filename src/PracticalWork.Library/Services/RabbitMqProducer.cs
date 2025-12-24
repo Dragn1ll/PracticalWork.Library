@@ -8,33 +8,64 @@ using RabbitMQ.Client;
 
 namespace PracticalWork.Library.Services;
 
-public class RabbitMqProducer : IRabbitMqProducer
+public class RabbitMqProducer : IRabbitMqProducer, IAsyncDisposable
 {
-    private readonly IConnectionFactory _factory;
+    private readonly Lazy<Task<IConnection>> _connectionTask;
 
     public RabbitMqProducer(IOptions<RabbitMqOptions> options)
     {
-        _factory = new ConnectionFactory
+        var factory = new ConnectionFactory
         {
             HostName = options.Value.HostName,
             UserName = options.Value.UserName,
             Password = options.Value.Password,
-            VirtualHost = options.Value.VirtualHost
+            VirtualHost = options.Value.VirtualHost,
+
+            AutomaticRecoveryEnabled = true,
+            TopologyRecoveryEnabled = true
         };
+
+        _connectionTask = new Lazy<Task<IConnection>>(() => factory.CreateConnectionAsync());
     }
 
     public async Task PublishEventAsync(BaseLibraryEvent libraryEvent, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _factory.CreateConnectionAsync(cancellationToken);
+        var connection = await _connectionTask.Value;
+
         await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
-        
-        await channel.QueueDeclareAsync(queue: libraryEvent.EventType, durable: false, exclusive: false, 
-            autoDelete: false, arguments: null, cancellationToken: cancellationToken);
-        
-        var json = JsonSerializer.Serialize(libraryEvent);
-        var body = Encoding.UTF8.GetBytes(json);
-        
-        await channel.BasicPublishAsync(exchange: string.Empty, routingKey: libraryEvent.EventType, body: body, 
+
+        await channel.QueueDeclareAsync(
+            queue: libraryEvent.EventType,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null,
             cancellationToken: cancellationToken);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(libraryEvent));
+
+        var props = new BasicProperties
+        {
+            ContentType = "application/json",
+            Persistent = true,
+            MessageId = Guid.NewGuid().ToString("N")
+        };
+
+        await channel.BasicPublishAsync(
+            exchange: "",
+            routingKey: libraryEvent.EventType,
+            mandatory: false,
+            basicProperties: props,
+            body: body,
+            cancellationToken: cancellationToken);
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        if (!_connectionTask.IsValueCreated) return;
+
+        var conn = await _connectionTask.Value;
+        await conn.CloseAsync();
+        await conn.DisposeAsync();
     }
 }
