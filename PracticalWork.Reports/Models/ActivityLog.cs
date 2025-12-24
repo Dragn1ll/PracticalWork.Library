@@ -1,11 +1,9 @@
-using PracticalWork.Reports.Abstractions.Storage.Entity;
-
-namespace PracticalWork.Reports.Data.PostgreSql.Entities;
+namespace PracticalWork.Reports.Models;
 
 /// <summary>
 /// Лог активности
 /// </summary>
-public class ActivityLogEntity : EntityBase
+public class ActivityLog
 {
     /// <summary>Внешний ключ на Book (опционально)</summary>
     public Guid? ExternalBookId { get; set; }

@@ -1,11 +1,9 @@
-using PracticalWork.Reports.Abstractions.Storage.Entity;
-
-namespace PracticalWork.Reports.Data.PostgreSql.Entities;
+namespace PracticalWork.Reports.Models;
 
 /// <summary>
 /// Отчет
 /// </summary>
-public class ReportEntity : EntityBase
+public class Report
 {
     /// <summary>Название отчета</summary>
     public string Name { get; set; } = null!;
