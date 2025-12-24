@@ -1,4 +1,5 @@
 using PracticalWork.Reports.Abstractions.Storage.Entity;
+using PracticalWork.Reports.Enums;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Entities;
 
@@ -23,5 +24,5 @@ public class ReportEntity : EntityBase
     public DateOnly PeriodTo { get; set; }
 
     /// <summary>Статус</summary>
-    public int Status { get; set; }
+    public ReportStatus Status { get; set; }
 }

@@ -1,3 +1,5 @@
+using PracticalWork.Reports.Enums;
+
 namespace PracticalWork.Reports.Models;
 
 /// <summary>
@@ -21,5 +23,5 @@ public class Report
     public DateOnly PeriodTo { get; set; }
 
     /// <summary>Статус</summary>
-    public int Status { get; set; }
+    public ReportStatus Status { get; set; }
 }

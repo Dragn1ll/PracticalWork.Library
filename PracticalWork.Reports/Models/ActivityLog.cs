@@ -1,3 +1,5 @@
+using PracticalWork.Reports.Enums;
+
 namespace PracticalWork.Reports.Models;
 
 /// <summary>
@@ -10,9 +12,9 @@ public class ActivityLog
     
     /// <summary>Внешний ключ на Reader (опционально)</summary>
     public Guid? ExternalReaderId { get; set; }
-    
+
     /// <summary>Тип события</summary>
-    public int EventType { get; set; }
+    public EventType EventType { get; set; }
     
     /// <summary>Дата события</summary>
     public DateTime EventDate { get; set; }
