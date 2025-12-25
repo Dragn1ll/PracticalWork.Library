@@ -22,6 +22,8 @@
       <ProjectReference Include="..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
       <ProjectReference Include="..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
       <ProjectReference Include="..\PracticalWork.Reports.Data.PostgreSql\PracticalWork.Reports.Data.PostgreSql.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Cache.Redis\PracticalWork.Library.Cache.Redis.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Data.Minio\PracticalWork.Library.Data.Minio.csproj" />
       <ProjectReference Include="..\src\PracticalWork.Library\PracticalWork.Library.csproj" />
     </ItemGroup>
 </Project>

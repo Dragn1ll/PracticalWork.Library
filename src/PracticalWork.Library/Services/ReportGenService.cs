@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Models;
@@ -7,7 +8,7 @@ using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Library.Services;
 
-public class ReportGenService
+public class ReportGenService : IReportGenService
 {
     private readonly IReportRepository _reportRepository;
     private readonly IActivityLogRepository _logRepository;
