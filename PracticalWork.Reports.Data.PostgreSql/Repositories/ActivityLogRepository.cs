@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PracticalWork.Reports.Abstractions.Storage.Repositories;
+using PracticalWork.Library.Abstractions.Storage.Repositories;
+using PracticalWork.Library.Models;
+using PracticalWork.Library.SharedKernel.Enums;
 using PracticalWork.Reports.Data.PostgreSql.Entities;
-using PracticalWork.Reports.Enums;
-using PracticalWork.Reports.Models;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Repositories;
 

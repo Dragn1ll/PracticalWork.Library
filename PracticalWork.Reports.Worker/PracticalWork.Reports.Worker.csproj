@@ -20,7 +20,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
+      <ProjectReference Include="..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
       <ProjectReference Include="..\PracticalWork.Reports.Data.PostgreSql\PracticalWork.Reports.Data.PostgreSql.csproj" />
-      <ProjectReference Include="..\PracticalWork.Reports\PracticalWork.Reports.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library\PracticalWork.Library.csproj" />
     </ItemGroup>
 </Project>

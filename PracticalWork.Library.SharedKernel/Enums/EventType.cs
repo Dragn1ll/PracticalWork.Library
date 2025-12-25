@@ -1,4 +1,4 @@
-namespace PracticalWork.Reports.Enums;
+namespace PracticalWork.Library.SharedKernel.Enums;
 
 /// <summary>
 /// Тип события

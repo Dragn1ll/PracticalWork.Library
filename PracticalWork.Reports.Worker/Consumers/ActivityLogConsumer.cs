@@ -1,14 +1,13 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.MessageBroker;
 using PracticalWork.Library.MessageBroker.Events;
 using PracticalWork.Library.MessageBroker.Events.Book;
 using PracticalWork.Library.MessageBroker.Events.Reader;
-using PracticalWork.Reports.Abstractions.Storage.Repositories;
-using PracticalWork.Reports.Enums;
-using PracticalWork.Reports.Models;
+using PracticalWork.Library.Models;
+using PracticalWork.Library.SharedKernel.Enums;
 using PracticalWork.Reports.Worker.Abstractions;
-using RabbitMQ.Client;
 
 namespace PracticalWork.Reports.Worker.Consumers;
 

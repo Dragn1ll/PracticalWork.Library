@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PracticalWork.Reports.Abstractions.Storage.Entity;
+using PracticalWork.Library.Abstractions.Storage.Entity;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Configurations;
 

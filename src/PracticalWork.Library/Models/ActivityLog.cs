@@ -1,6 +1,6 @@
-using PracticalWork.Reports.Enums;
+using PracticalWork.Library.SharedKernel.Enums;
 
-namespace PracticalWork.Reports.Models;
+namespace PracticalWork.Library.Models;
 
 /// <summary>
 /// Лог активности

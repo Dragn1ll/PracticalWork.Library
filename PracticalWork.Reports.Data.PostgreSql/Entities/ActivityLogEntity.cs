@@ -1,5 +1,5 @@
-using PracticalWork.Reports.Abstractions.Storage.Entity;
-using PracticalWork.Reports.Enums;
+using PracticalWork.Library.Abstractions.Storage.Entity;
+using PracticalWork.Library.SharedKernel.Enums;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Entities;
 

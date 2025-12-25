@@ -1,7 +1,7 @@
-using PracticalWork.Reports.Enums;
-using PracticalWork.Reports.Models;
+using PracticalWork.Library.Models;
+using PracticalWork.Library.SharedKernel.Enums;
 
-namespace PracticalWork.Reports.Abstractions.Storage.Repositories;
+namespace PracticalWork.Library.Abstractions.Storage.Repositories;
 
 /// <summary>
 /// Репозитория для логов активности
