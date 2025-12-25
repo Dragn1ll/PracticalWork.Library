@@ -33,6 +33,9 @@ public class ReportService : IReportService
     {
         try
         {
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize < 1 ? 20 : pageSize;
+            
             return await _activityLogRepository.GetAllActivityLogs(dateFrom, dateTo, eventType, page, pageSize);
         }
         catch (Exception ex) when (ex is not ClientErrorException)

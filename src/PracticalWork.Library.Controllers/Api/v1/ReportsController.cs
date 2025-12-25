@@ -44,7 +44,7 @@ public class ReportsController : ControllerBase
         var result =
             await _reportService.CreateReport(request.Name, request.PeriodFrom, request.PeriodTo, request.EventType);
 
-        return Content(JsonSerializer.Serialize(result, result.GetType()));
+        return Ok(result);
     }
     
     /// <summary>Получение списка завершённых отчётов</summary>

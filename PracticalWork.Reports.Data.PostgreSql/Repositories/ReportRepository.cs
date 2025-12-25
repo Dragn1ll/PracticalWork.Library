@@ -18,19 +18,18 @@ public class ReportRepository : IReportRepository
 
     public async Task<Guid> CreateReport(Report report)
     {
-        var entity = await _context.Reports.FindAsync(report.Name);
-        if (entity != null)
+        if (await _context.Reports.FirstOrDefaultAsync(r => r.Name == report.Name) != null)
         {
             throw new ClientErrorException("Уже существует отчёт с таким названием.");
         }
         
-        entity = new ReportEntity()
+        var entity = new ReportEntity()
         {
             Name = report.Name,
             PeriodFrom = report.PeriodFrom,
             PeriodTo = report.PeriodTo,
             Status = report.Status,
-            FilePath = report.FilePath,
+            FilePath = report.FilePath ?? string.Empty,
             GeneratedAt = report.GeneratedAt
         };
         
@@ -61,7 +60,7 @@ public class ReportRepository : IReportRepository
 
     public async Task<Report> GetReportByName(string reportName)
     {
-        var entity = await _context.Reports.FindAsync(reportName);
+        var entity = await _context.Reports.FirstOrDefaultAsync(r => r.Name == reportName);
         if (entity == null)
         {
             throw new ClientErrorException("Не существует отчёта с таким названием");

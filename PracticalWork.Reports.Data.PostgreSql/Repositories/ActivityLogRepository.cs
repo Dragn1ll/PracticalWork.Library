@@ -31,7 +31,7 @@ public class ActivityLogRepository : IActivityLogRepository
     }
 
     public async Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? startDate, DateOnly? endDate, 
-        EventType eventType, int page = 1, int pageSize = 20)
+        EventType eventType, int page, int pageSize)
     {
         return (await _context.ActivityLogs.AsNoTracking()
             .Where(al => (DateOnly.FromDateTime(al.EventDate) >= startDate || startDate == null)

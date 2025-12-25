@@ -9,10 +9,10 @@ namespace PracticalWork.Reports.Data.PostgreSql.Entities;
 public class ReportEntity : EntityBase
 {
     /// <summary>Название отчета</summary>
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>Путь к файлу в MinIO</summary>
-    public string FilePath { get; set; } = null!;
+    public string FilePath { get; set; } = string.Empty;
 
     /// <summary>Дата генерации</summary>
     public DateTime GeneratedAt { get; set; }
