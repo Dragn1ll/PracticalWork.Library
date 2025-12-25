@@ -7,15 +7,15 @@ namespace PracticalWork.Reports.Data.PostgreSql;
 /// <summary>
 /// Контекст EF Core для приложения
 /// </summary>
-public sealed class AppDbContext : DbContext
+public sealed class ReportDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public ReportDbContext(DbContextOptions<ReportDbContext> options) : base(options)
     {
     }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly(typeof(ReportDbContext).Assembly);
     }
 
     #region Set UpdateDate on SaveChanges

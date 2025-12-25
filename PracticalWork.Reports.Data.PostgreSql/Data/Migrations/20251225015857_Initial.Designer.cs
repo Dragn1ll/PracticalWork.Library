@@ -11,7 +11,7 @@ using PracticalWork.Reports.Data.PostgreSql;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Data.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(ReportDbContext))]
     [Migration("20251225015857_Initial")]
     partial class Initial
     {

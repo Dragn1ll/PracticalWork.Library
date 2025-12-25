@@ -8,9 +8,9 @@ namespace PracticalWork.Reports.Data.PostgreSql.Repositories;
 
 public class ActivityLogRepository : IActivityLogRepository
 {
-    private readonly AppDbContext _context;
+    private readonly ReportDbContext _context;
 
-    public ActivityLogRepository(AppDbContext context)
+    public ActivityLogRepository(ReportDbContext context)
     {
         _context = context;
     }

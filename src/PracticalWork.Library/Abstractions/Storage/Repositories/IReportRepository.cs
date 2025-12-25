@@ -22,6 +22,13 @@ public interface IReportRepository
     Task<Report> GetReportById(Guid reportId);
     
     /// <summary>
+    /// Получить отчёт по названию
+    /// </summary>
+    /// <param name="reportName">Название отчёта</param>
+    /// <returns>Отчёт</returns>
+    Task<Report> GetReportByName(string reportName);
+    
+    /// <summary>
     /// Получить список сгенерированных отчётов
     /// </summary>
     /// <returns>Список отчётов</returns>

@@ -12,11 +12,12 @@ public static class Entry
     /// <summary>
     /// Добавления зависимостей для работы с БД
     /// </summary>
-    public static IServiceCollection AddPostgreSqlStorage(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> optionsAction)
+    public static IServiceCollection AddReportPostgreSqlStorage(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> optionsAction)
     {
-        serviceCollection.AddDbContext<AppDbContext>(optionsAction ?? DefaultOptionsAction, optionsLifetime: ServiceLifetime.Singleton);
+        serviceCollection.AddDbContext<ReportDbContext>(optionsAction ?? DefaultOptionsAction, optionsLifetime: ServiceLifetime.Singleton);
 
         serviceCollection.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+        serviceCollection.AddScoped<IReportRepository, ReportRepository>();
         
         return serviceCollection;
     }

@@ -8,6 +8,7 @@ using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Web.Configuration;
 using System.Text.Json.Serialization;
+using PracticalWork.Reports.Data.PostgreSql;
 
 namespace PracticalWork.Library.Web;
 
@@ -28,6 +29,15 @@ public class Startup
         services.AddPostgreSqlStorage(cfg =>
         {
             var npgsqlDataSource = new NpgsqlDataSourceBuilder(Configuration["App:DbConnectionString"])
+                .EnableDynamicJson()
+                .Build();
+
+            cfg.UseNpgsql(npgsqlDataSource);
+        });
+
+        services.AddReportPostgreSqlStorage(cfg =>
+        {
+            var npgsqlDataSource = new NpgsqlDataSourceBuilder(Configuration["Report:DbConnectionString"])
                 .EnableDynamicJson()
                 .Build();
 

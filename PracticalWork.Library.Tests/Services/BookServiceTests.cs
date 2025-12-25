@@ -205,7 +205,7 @@ public class BookServiceTests
         // Assert
         Assert.Same(cachedBooks, result);
         _bookRepositoryMock.Verify(r => r.GetBooks(It.IsAny<BookStatus>(), It.IsAny<BookCategory>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>(), ""), Times.Never);
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class BookServiceTests
         _bookRepositoryMock.Setup(r => r.GetBooks(getBookListDto.Status, getBookListDto.Category, getBookListDto.Author,
                 getBookListDto.Page, getBookListDto.PageSize))
             .ReturnsAsync(dbBooks);
-        _minIoServiceMock.Setup(m => m.GetFileUrlAsync("path/to/cover.jpg", It.IsAny<int>())).ReturnsAsync(expectedUrl);
+        _minIoServiceMock.Setup(m => m.GetFileUrlAsync("path/to/cover.jpg", It.IsAny<int>(), "")).ReturnsAsync(expectedUrl);
 
         // Act
         var result = await _bookService.GetBooks(getBookListDto);

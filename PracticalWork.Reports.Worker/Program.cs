@@ -32,7 +32,7 @@ services.AddKeyedSingleton<IRabbitMqConsumer, ReportGenerateConsumer>(queueNames
 
 services.AddHostedService<ConsumersBackgroundService>();
 
-services.AddPostgreSqlStorage(cfg =>
+services.AddReportPostgreSqlStorage(cfg =>
 {
     var npgsqlDataSource = new NpgsqlDataSourceBuilder(builder.Configuration["App:DbConnectionString"])
         .EnableDynamicJson()
@@ -47,7 +47,7 @@ services.AddCache(builder.Configuration);
 var host = builder.Build();
 
 using var scope = host.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+var dbContext = scope.ServiceProvider.GetRequiredService<ReportDbContext>();
 
 if (dbContext.Database.GetPendingMigrations().Any())
 {

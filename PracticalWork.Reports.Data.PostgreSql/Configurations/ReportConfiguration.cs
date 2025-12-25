@@ -13,6 +13,9 @@ public class ReportConfiguration : EntityConfigurationBase<ReportEntity>
             .HasMaxLength(255)
             .IsRequired();
         
+        builder.HasIndex(p => p.Name)
+            .IsUnique();
+        
         builder.Property(p => p.FilePath)
             .HasMaxLength(500)
             .IsRequired();

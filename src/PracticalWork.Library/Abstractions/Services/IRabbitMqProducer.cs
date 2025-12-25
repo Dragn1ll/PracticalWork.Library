@@ -13,5 +13,5 @@ public interface IRabbitMqProducer
     /// <param name="libraryEvent">Событие</param>
     /// <param name="cancellationToken">Токен прекращения работы</param>
     Task PublishEventAsync<TEvent>(TEvent libraryEvent, CancellationToken cancellationToken = default) 
-        where TEvent : BaseLibraryEvent;
+        where TEvent : BaseEvent;
 }

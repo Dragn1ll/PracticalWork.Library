@@ -16,6 +16,7 @@ public static class Entry
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<ILibraryService, LibraryService>();
         services.AddScoped<IReaderService, ReaderService>();
+        services.AddScoped<IReportService, ReportService>();
         
         services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
         services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();

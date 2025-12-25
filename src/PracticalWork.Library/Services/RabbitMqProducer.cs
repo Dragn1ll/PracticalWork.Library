@@ -30,7 +30,7 @@ public class RabbitMqProducer : IRabbitMqProducer, IAsyncDisposable
     }
 
     public async Task PublishEventAsync<TEvent>(TEvent libraryEvent, CancellationToken cancellationToken = default) 
-        where TEvent : BaseLibraryEvent
+        where TEvent : BaseEvent
     {
         var connection = await _connectionTask.Value;
 

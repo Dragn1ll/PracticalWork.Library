@@ -14,5 +14,5 @@ public interface IReportGenService
     /// <param name="periodFrom">Начало периода отчёта</param>
     /// <param name="periodTo">Конец периода отчёта</param>
     /// <param name="eventType">Тип события</param>
-    Task GenerateReport(Guid reportId, DateOnly? periodFrom, DateOnly? periodTo, EventType eventType);
+    Task GenerateReport(Guid reportId, DateOnly periodFrom, DateOnly periodTo, EventType eventType);
 }

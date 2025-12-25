@@ -10,7 +10,7 @@ using PracticalWork.Reports.Data.PostgreSql;
 
 namespace PracticalWork.Reports.Data.PostgreSql.Data.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(ReportDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

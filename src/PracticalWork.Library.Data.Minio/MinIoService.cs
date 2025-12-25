@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
@@ -51,7 +52,7 @@ public class MinIoService : IMinIoService
     }
 
     /// <inheritdoc cref="IMinIoService.GetFileUrlAsync"/>
-    public async Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60)
+    public async Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60, string bucketName = null)
     {
         await CheckBucketAsync();
         
@@ -61,7 +62,7 @@ public class MinIoService : IMinIoService
         }
         
         var presignedGetArgs = new PresignedGetObjectArgs()
-            .WithBucket(_bucketName)
+            .WithBucket(bucketName ?? _bucketName)
             .WithObject(fileName)
             .WithExpiry(expiryMinutes * 60);
         

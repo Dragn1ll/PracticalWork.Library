@@ -24,7 +24,7 @@ public class ReportGenService : IReportGenService
         _cache = cache;
     }
 
-    public async Task GenerateReport(Guid reportId, DateOnly? periodFrom, DateOnly? periodTo, EventType eventType)
+    public async Task GenerateReport(Guid reportId, DateOnly periodFrom, DateOnly periodTo, EventType eventType)
     {
         var report = await _reportRepository.GetReportById(reportId);
         var logs = await _logRepository.GetAllActivityLogs(periodFrom, periodTo, eventType);
