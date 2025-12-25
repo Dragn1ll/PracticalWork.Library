@@ -24,4 +24,15 @@ public class Report
 
     /// <summary>Статус</summary>
     public ReportStatus Status { get; set; }
+
+    /// <summary>
+    /// Пометить отчёт как сгенерированный
+    /// </summary>
+    /// <param name="filePath">Путь к файлу в хранилище</param>
+    public void MarkAsGenerated(string filePath)
+    {
+        FilePath = filePath;
+        GeneratedAt = DateTime.UtcNow;
+        Status = ReportStatus.Generated;
+    }
 }

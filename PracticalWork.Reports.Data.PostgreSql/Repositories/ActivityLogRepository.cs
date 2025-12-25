@@ -30,11 +30,12 @@ public class ActivityLogRepository : IActivityLogRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? date, EventType eventType, int page,
-        int pageSize)
+    public async Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? startDate, DateOnly? endDate, 
+        EventType eventType, int page = 1, int pageSize = 20)
     {
         return (await _context.ActivityLogs.AsNoTracking()
-            .Where(al => (DateOnly.FromDateTime(al.EventDate) == date || date == null)
+            .Where(al => (DateOnly.FromDateTime(al.EventDate) >= startDate || startDate == null)
+                         && (DateOnly.FromDateTime(al.EventDate) <= endDate || endDate == null)
                          && (al.EventType == eventType || eventType == EventType.Default))
             .OrderBy(al => al.EventDate)
             .Skip((page - 1) * pageSize)

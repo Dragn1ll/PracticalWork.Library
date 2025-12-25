@@ -1,4 +1,5 @@
 using PracticalWork.Library.Abstractions.Storage.Repositories;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -13,16 +14,16 @@ public class ReportService
         _activityLogRepository = activityLogRepository;
     }
 
-    public async Task<IEnumerable<ActivityLog>> GetAllActivities(DateOnly? date, EventType eventType, int? page,
-        int? pageSize)
+    public async Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? dateFrom, DateOnly? dateTo, 
+        EventType eventType, int page, int pageSize)
     {
         try
         {
-            return await _activityLogRepository.GetAllActivityLogs(date, eventType, page ?? 1, pageSize ?? 20);
+            return await _activityLogRepository.GetAllActivityLogs(dateFrom, dateTo, eventType, page, pageSize);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            throw new ReportServiceException("Не удалось получить записи логов активности", ex);
         }
     }
     

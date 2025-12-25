@@ -17,9 +17,11 @@ public interface IActivityLogRepository
     /// <summary>
     /// Получение логов активности 
     /// </summary>
-    /// <param name="date">Дата лога активности</param>
+    /// <param name="startDate">Начальная дата логов активности</param>
+    /// <param name="endDate">Конечная дата логов активности</param>
     /// <param name="eventType">Тип события</param>
     /// <param name="page">Номер страницы</param>
     /// <param name="pageSize">Размер страницы</param>
-    Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? date, EventType eventType, int page, int pageSize);
+    Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? startDate, DateOnly? endDate, EventType eventType,
+        int page = 1, int pageSize = 20);
 }
