@@ -41,7 +41,7 @@ public class ReportService : IReportService
         }
     }
 
-    public async Task GenerateReport(string name, DateOnly periodFrom, DateOnly periodTo, EventType eventType)
+    public async Task<Report> CreateReport(string name, DateOnly periodFrom, DateOnly periodTo, EventType eventType)
     {
         if (periodTo < periodFrom)
         {
@@ -62,6 +62,8 @@ public class ReportService : IReportService
             
             await _producer.PublishEventAsync(new CreateReportEvent(reportId, periodFrom, periodTo, (int)eventType));
             await _cache.RemoveAsync(CacheKey);
+            
+            return report;
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {
