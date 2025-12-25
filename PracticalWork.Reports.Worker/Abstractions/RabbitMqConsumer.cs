@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
+using PracticalWork.Library.MessageBroker;
 using PracticalWork.Library.MessageBroker.Events;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -8,21 +10,34 @@ namespace PracticalWork.Reports.Worker.Abstractions;
 
 public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEvent
 {
-    private readonly IConnection _connection;
-    private readonly ILogger<RabbitMqConsumer<T>> _logger;
+    private readonly Lazy<Task<IConnection>> _connectionTask;
+    protected readonly ILogger<RabbitMqConsumer<T>> Logger;
     
     private IChannel? _channel;
     private string? _consumerTag;
 
-    protected RabbitMqConsumer(IConnection connection, ILogger<RabbitMqConsumer<T>> logger)
+    protected RabbitMqConsumer(IOptions<RabbitMqOptions> options, ILogger<RabbitMqConsumer<T>> logger)
     {
-        _connection = connection;
-        _logger = logger;
+        var factory = new ConnectionFactory
+        {
+            HostName = options.Value.HostName,
+            Port = options.Value.Port,
+            UserName = options.Value.UserName,
+            Password = options.Value.Password,
+            VirtualHost = options.Value.VirtualHost,
+
+            AutomaticRecoveryEnabled = true,
+            TopologyRecoveryEnabled = true
+        };
+
+        _connectionTask = new Lazy<Task<IConnection>>(() => factory.CreateConnectionAsync());
+        Logger = logger;
     }
 
     public async Task StartAsync(string queueName, CancellationToken cancellationToken = default)
     {
-        _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        var connection = await _connectionTask.Value;
+        _channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
         var consumer = new AsyncEventingBasicConsumer(_channel);
 
         consumer.ReceivedAsync += async (model, ea) =>
@@ -35,7 +50,7 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
             autoAck: true,   
             consumer: consumer, cancellationToken: cancellationToken);
             
-        _logger.LogInformation("Начато потребление очереди: {QueueName}", queueName);
+        Logger.LogInformation("Начато потребление очереди: {QueueName}", queueName);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
@@ -43,7 +58,7 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
         if (!string.IsNullOrEmpty(_consumerTag) && _channel is not null && _channel.IsOpen)
         {
             await _channel.BasicCancelAsync(_consumerTag, cancellationToken: cancellationToken);
-            _logger.LogInformation("Потребление остановлено");
+            Logger.LogInformation("Потребление остановлено");
         }
     }
     
@@ -53,7 +68,7 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
         var message = Encoding.UTF8.GetString(body);
         var properties = ea.BasicProperties;
             
-        _logger.LogInformation(
+        Logger.LogInformation(
             "Получено сообщение: Queue={Queue}, MessageId={Id}, DeliveryTag={Tag}",
             queueName, properties.MessageId, ea.DeliveryTag);
 
@@ -63,7 +78,7 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
             throw new ArgumentNullException();
         }
         await ProcessMessageAsync(messageObject);
-        _logger.LogInformation("Сообщение обработано успешно");
+        Logger.LogInformation("Сообщение обработано успешно");
     }
     
     protected abstract Task ProcessMessageAsync(T? messageObject);

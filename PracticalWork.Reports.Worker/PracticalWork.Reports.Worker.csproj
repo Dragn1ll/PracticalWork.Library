@@ -14,5 +14,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
+      <ProjectReference Include="..\PracticalWork.Reports\PracticalWork.Reports.csproj" />
     </ItemGroup>
 </Project>
