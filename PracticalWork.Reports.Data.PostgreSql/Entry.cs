@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PracticalWork.Reports.Abstractions.Storage.Repositories;
+using PracticalWork.Reports.Data.PostgreSql.Repositories;
 
 namespace PracticalWork.Reports.Data.PostgreSql;
 
@@ -14,6 +16,8 @@ public static class Entry
     {
         serviceCollection.AddDbContext<AppDbContext>(optionsAction ?? DefaultOptionsAction, optionsLifetime: ServiceLifetime.Singleton);
 
+        serviceCollection.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+        
         return serviceCollection;
     }
 }

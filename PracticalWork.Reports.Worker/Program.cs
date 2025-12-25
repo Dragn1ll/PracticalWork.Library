@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using PracticalWork.Library.MessageBroker;
 using PracticalWork.Library.MessageBroker.Events.Book;
 using PracticalWork.Library.MessageBroker.Events.Reader;
+using PracticalWork.Reports.Data.PostgreSql;
 using PracticalWork.Reports.Worker.Abstractions;
 using PracticalWork.Reports.Worker.Consumers;
 using PracticalWork.Reports.Worker.Workers;
@@ -21,5 +24,23 @@ services.AddKeyedSingleton<IRabbitMqConsumer, ActivityLogConsumer<ReaderClosedEv
 
 services.AddHostedService<ConsumersBackgroundService>();
 
+services.AddPostgreSqlStorage(cfg =>
+{
+    var npgsqlDataSource = new NpgsqlDataSourceBuilder(builder.Configuration["App:DbConnectionString"])
+        .EnableDynamicJson()
+        .Build();
+
+    cfg.UseNpgsql(npgsqlDataSource);
+});
+
 var host = builder.Build();
-host.Run();
+
+using var scope = host.Services.CreateScope();
+var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+if (dbContext.Database.GetPendingMigrations().Any())
+{
+    dbContext.Database.Migrate();
+}
+
+await host.RunAsync();

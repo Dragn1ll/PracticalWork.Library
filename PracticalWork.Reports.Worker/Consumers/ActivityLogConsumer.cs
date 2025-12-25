@@ -2,6 +2,8 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using PracticalWork.Library.MessageBroker;
 using PracticalWork.Library.MessageBroker.Events;
+using PracticalWork.Library.MessageBroker.Events.Book;
+using PracticalWork.Library.MessageBroker.Events.Reader;
 using PracticalWork.Reports.Abstractions.Storage.Repositories;
 using PracticalWork.Reports.Enums;
 using PracticalWork.Reports.Models;
@@ -33,19 +35,29 @@ public class ActivityLogConsumer<T> : RabbitMqConsumer<T> where T : BaseLibraryE
                 EventType = GetEventType(messageObject.EventType),
                 Metadata = JsonSerializer.Serialize(messageObject, messageObject.GetType())
             };
-            
-            var props = log.GetType().GetProperties();
-            foreach (var prop in props)
-            {
-                if (prop.Name == "BookId")
-                {
-                    log.ExternalBookId = prop.GetValue(prop.Name) as Guid?;
-                }
 
-                if (prop.Name == "ReaderId")
-                {
-                    log.ExternalReaderId = prop.GetValue(prop.Name) as Guid?;
-                }
+            switch (messageObject)
+            {
+                case BookCreatedEvent bookCreatedEvent:
+                    log.ExternalBookId = bookCreatedEvent.BookId;
+                    break;
+                case BookArchivedEvent bookArchivedEvent:
+                    log.ExternalBookId = bookArchivedEvent.BookId;
+                    break;
+                case ReaderCreatedEvent readerCreatedEvent:
+                    log.ExternalReaderId = readerCreatedEvent.ReaderId;
+                    break;
+                case ReaderClosedEvent readerClosedEvent:
+                    log.ExternalReaderId = readerClosedEvent.ReaderId;
+                    break;
+                case BookBorrowedEvent bookBorrowedEvent:
+                    log.ExternalBookId = bookBorrowedEvent.BookId;
+                    log.ExternalReaderId = bookBorrowedEvent.ReaderId;
+                    break;
+                case BookReturnedEvent bookReturnedEvent:
+                    log.ExternalBookId = bookReturnedEvent.BookId;
+                    log.ExternalReaderId = bookReturnedEvent.ReaderId;
+                    break;
             }
 
             await repository.AddActivityLog(log);
