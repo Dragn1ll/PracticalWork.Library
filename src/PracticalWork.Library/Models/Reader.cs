@@ -39,7 +39,7 @@ public sealed class Reader
     /// </summary>
     public void DeActiveReader()
     {
-        if (IsActive)
+        if (!IsActive)
         {
             throw new InvalidOperationException("Карточка не может быть закрыта, так как уже закрыта!");
         }

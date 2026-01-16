@@ -1,4 +1,5 @@
 using Moq;
+using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto.Input;
@@ -15,6 +16,7 @@ public class LibraryServiceTests
     private readonly Mock<ILibraryRepository> _libraryRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMinIoService> _minIoServiceMock;
+    private readonly Mock<IRabbitMqProducer> _producerMock;
     private readonly LibraryService _libraryService;
 
     public LibraryServiceTests()
@@ -22,11 +24,13 @@ public class LibraryServiceTests
         _libraryRepositoryMock = new Mock<ILibraryRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _minIoServiceMock = new Mock<IMinIoService>();
+        _producerMock = new Mock<IRabbitMqProducer>();
 
         _libraryService = new LibraryService(
             _libraryRepositoryMock.Object,
             _redisServiceMock.Object,
-            _minIoServiceMock.Object
+            _minIoServiceMock.Object,
+            _producerMock.Object
         );
     }
 
@@ -190,7 +194,7 @@ public class LibraryServiceTests
         // Assert
         Assert.Same(cachedDetails, result);
         _libraryRepositoryMock.Verify(r => r.GetBookById(It.IsAny<Guid>()), Times.Never);
-        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>(), ""), Times.Never);
     }
 
     [Fact]
@@ -214,7 +218,7 @@ public class LibraryServiceTests
 
         _redisServiceMock.Setup(r => r.GetAsync<BookDetailsDto>(cacheKey)).ReturnsAsync((BookDetailsDto)null!);
         _libraryRepositoryMock.Setup(r => r.GetBookById(bookId)).ReturnsAsync(dbBook);
-        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(dbBook.CoverImagePath, It.IsAny<int>())).ReturnsAsync(expectedUrl);
+        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(dbBook.CoverImagePath, It.IsAny<int>(), "")).ReturnsAsync(expectedUrl);
 
         // Act
         var result = await _libraryService.GetBookDetailsById(bookId);
@@ -238,7 +242,7 @@ public class LibraryServiceTests
 
         _redisServiceMock.Setup(r => r.GetAsync<BookDetailsDto>($"book:details:{bookId}")).ReturnsAsync((BookDetailsDto)null!);
         _libraryRepositoryMock.Setup(r => r.GetBookById(bookId)).ReturnsAsync(new Book { Title = title, Authors = expectedDetails.Authors, Description = expectedDetails.Description, Year = expectedDetails.Year, Category = expectedDetails.Category, Status = expectedDetails.Status, CoverImagePath = "path", IsArchived = expectedDetails.IsArchived });
-        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync("url");
+        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>(), "")).ReturnsAsync("url");
 
         // Act
         var result = await _libraryService.GetBookDetailsByTitle(title);

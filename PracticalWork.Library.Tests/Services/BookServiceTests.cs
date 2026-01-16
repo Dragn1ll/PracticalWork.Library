@@ -17,6 +17,7 @@ public class BookServiceTests
     private readonly Mock<IBookRepository> _bookRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMinIoService> _minIoServiceMock;
+    private readonly Mock<IRabbitMqProducer> _producerMock;
     private readonly IBookService _bookService;
 
     public BookServiceTests()
@@ -24,11 +25,13 @@ public class BookServiceTests
         _bookRepositoryMock = new Mock<IBookRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _minIoServiceMock = new Mock<IMinIoService>();
+        _producerMock = new Mock<IRabbitMqProducer>();
 
         _bookService = new BookService(
             _bookRepositoryMock.Object,
             _redisServiceMock.Object,
-            _minIoServiceMock.Object
+            _minIoServiceMock.Object,
+            _producerMock.Object
         );
     }
     private Mock<IFormFile> CreateMockFormFile(string fileName, string contentType, long length)
@@ -202,7 +205,7 @@ public class BookServiceTests
         // Assert
         Assert.Same(cachedBooks, result);
         _bookRepositoryMock.Verify(r => r.GetBooks(It.IsAny<BookStatus>(), It.IsAny<BookCategory>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        _minIoServiceMock.Verify(m => m.GetFileUrlAsync(It.IsAny<string>(), It.IsAny<int>(), ""), Times.Never);
     }
 
     [Fact]
@@ -223,7 +226,7 @@ public class BookServiceTests
         _bookRepositoryMock.Setup(r => r.GetBooks(getBookListDto.Status, getBookListDto.Category, getBookListDto.Author,
                 getBookListDto.Page, getBookListDto.PageSize))
             .ReturnsAsync(dbBooks);
-        _minIoServiceMock.Setup(m => m.GetFileUrlAsync("path/to/cover.jpg", It.IsAny<int>())).ReturnsAsync(expectedUrl);
+        _minIoServiceMock.Setup(m => m.GetFileUrlAsync("path/to/cover.jpg", It.IsAny<int>(), "")).ReturnsAsync(expectedUrl);
 
         // Act
         var result = await _bookService.GetBooks(getBookListDto);

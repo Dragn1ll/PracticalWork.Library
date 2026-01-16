@@ -19,6 +19,7 @@ public interface IMinIoService
     /// </summary>
     /// <param name="fileName">Название файла</param>
     /// <param name="expiryMinutes">Продолжительность работы ссылки</param>
+    /// <param name="bucketName">Название бакета, если надо обратить в другой вместо стандартного</param>
     /// <returns></returns>
-    Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60);
+    Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60, string bucketName = null);
 }

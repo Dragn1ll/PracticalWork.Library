@@ -4,6 +4,7 @@ using PracticalWork.Library.Abstractions.Storage;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
 using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Exceptions;
+using PracticalWork.Library.MessageBroker.Events.Reader;
 using PracticalWork.Library.Models;
 
 namespace PracticalWork.Library.Services;
@@ -13,11 +14,14 @@ public sealed class ReaderService : IReaderService
 {
     private readonly IReaderRepository _readerRepository;
     private readonly IRedisService _redisService;
+    private readonly IRabbitMqProducer _producer;
 
-    public ReaderService(IReaderRepository readerRepository, IRedisService redisService)
+    public ReaderService(IReaderRepository readerRepository, IRedisService redisService, 
+        IRabbitMqProducer producer)
     {
         _readerRepository = readerRepository;
         _redisService = redisService;
+        _producer = producer;
     }
 
     /// <inheritdoc cref="IReaderService.CreateReader"/>
@@ -26,7 +30,12 @@ public sealed class ReaderService : IReaderService
         reader.IsActive = true;
         try
         {
-            return await _readerRepository.CreateReader(reader);
+            var readerId = await _readerRepository.CreateReader(reader);
+
+            await _producer.PublishEventAsync(new ReaderCreatedEvent(readerId, reader.FullName, reader.PhoneNumber, 
+                reader.ExpiryDate.ToDateTime(default), DateTime.UtcNow));
+            
+            return readerId;
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {
@@ -85,6 +94,8 @@ public sealed class ReaderService : IReaderService
             reader.DeActiveReader();
             
             await _readerRepository.UpdateReader(readerId, reader);
+
+            await _producer.PublishEventAsync(new ReaderClosedEvent(readerId, reader.FullName, DateTime.UtcNow, ""));
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {

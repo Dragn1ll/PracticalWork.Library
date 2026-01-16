@@ -8,6 +8,7 @@ using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Web.Configuration;
 using System.Text.Json.Serialization;
+using PracticalWork.Reports.Data.PostgreSql;
 
 namespace PracticalWork.Library.Web;
 
@@ -34,6 +35,15 @@ public class Startup
             cfg.UseNpgsql(npgsqlDataSource);
         });
 
+        services.AddReportPostgreSqlStorage(cfg =>
+        {
+            var npgsqlDataSource = new NpgsqlDataSourceBuilder(Configuration["Report:DbConnectionString"])
+                .EnableDynamicJson()
+                .Build();
+
+            cfg.UseNpgsql(npgsqlDataSource);
+        });
+
         services.AddMvc(opt =>
             {
                 opt.Filters.Add<DomainExceptionFilter<AppException>>();
@@ -53,7 +63,7 @@ public class Startup
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PracticalWork.Library.Controllers.xml"));
         });
 
-        services.AddDomain();
+        services.AddDomain(Configuration);
         services.AddCache(Configuration);
         services.AddMinioFileStorage(Configuration);
     }

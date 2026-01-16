@@ -6,8 +6,21 @@ services:
    ports:
     - "5433:5432"
    env_file: .env
+   environment:
+    - POSTGRES_DB=library
    volumes:
-    - postgres_data:/var/lib/postgresql
+    - library_db_data:/var/lib/library
+  
+  reporting-db:
+   image: postgres
+   container_name: reporting_db
+   ports:
+    - "5434:5432"
+   env_file: .env
+   environment:
+    - POSTGRES_DB=reporting
+   volumes:
+    - reporting_db_data:/var/lib/reporting
 
   # Redis cache
   redis:
@@ -52,9 +65,21 @@ services:
     - "8081:8081"
    depends_on:
     - redis
+  
+  rabbitmq:
+   image: rabbitmq:4-management
+   container_name: rabbitmq
+   ports:
+    - "5672:5672"
+    - "15672:15672"
+   env_file: .env
+   volumes:
+    - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
- postgres_data:
+ library_db_data:
+ reporting_db_data:
  redis_data:
  minio_data:
  pgadmin_data:
+ rabbitmq_data:
