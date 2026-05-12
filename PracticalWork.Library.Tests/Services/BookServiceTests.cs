@@ -215,11 +215,11 @@ public class BookServiceTests
         var getBookListDto = new GetBookListDto(BookStatus.Available, BookCategory.FictionBook, "Автор", 1, 10);
         var cacheKey = $"books:list:{HashCode.Combine(getBookListDto.Status, getBookListDto.Category, getBookListDto.Author)}:{getBookListDto.Page}:{getBookListDto.PageSize}";
 
-        var dbBooks = new List<BookListDto>
+        var dbBooks = new PagedListDto<BookListDto>(new List<BookListDto>
         {
-            new BookListDto(Guid.NewGuid(), "Книга из БД", new List<string>(), "", 2020, 
+            new BookListDto(Guid.NewGuid(), "Книга из БД", new List<string>(), "", 2020,
                 "path/to/cover.jpg")
-        };
+        }, getBookListDto.Page, getBookListDto.PageSize, 0);
         var expectedUrl = "http://minio.url/path/to/cover.jpg";
 
         _redisServiceMock.Setup(r => r.GetAsync<IList<BookListDto>>(cacheKey)).ReturnsAsync((IList<BookListDto>)null!);
@@ -232,8 +232,8 @@ public class BookServiceTests
         var result = await _bookService.GetBooks(getBookListDto);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedUrl, result.First().CoverImagePath);
+        Assert.Single(result.Items);
+        Assert.Equal(expectedUrl, result.Items.First().CoverImagePath);
         _redisServiceMock.Verify(r => r.SetAsync(cacheKey, result, TimeSpan.FromMinutes(10)), Times.Once);
     }
 

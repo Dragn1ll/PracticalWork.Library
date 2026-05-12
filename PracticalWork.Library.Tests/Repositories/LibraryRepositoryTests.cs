@@ -193,8 +193,8 @@ public class LibraryRepositoryTests : IDisposable
             false, 1, 10);
 
         // Assert
-        Assert.Single(books);
-        Assert.Equal("Scientific Title", books.First().Title);
+        Assert.Single(books.Items);
+        Assert.Equal("Scientific Title", books.Items.First().Title);
     }
     
     [Fact]
@@ -205,8 +205,8 @@ public class LibraryRepositoryTests : IDisposable
             true, 1, 10);
 
         // Assert
-        Assert.Single(books);
-        Assert.Equal("Available Book Title", books.First().Title);
+        Assert.Single(books.Items);
+        Assert.Equal("Available Book Title", books.Items.First().Title);
     }
 
     [Fact]
@@ -217,9 +217,9 @@ public class LibraryRepositoryTests : IDisposable
             false, 1, 10);
 
         // Assert
-        Assert.Equal(2, books.Count); 
+        Assert.Equal(2, books.Items.Count); 
         
-        var borrowedBook = books.Single(b => b.Title == "Borrowed Book Title");
+        var borrowedBook = books.Items.Single(b => b.Title == "Borrowed Book Title");
         
         Assert.Equal(_readerId, borrowedBook.ReaderId);
         Assert.Equal(DateOnly.FromDateTime(DateTime.Today.AddDays(-10)), borrowedBook.BorrowDate);

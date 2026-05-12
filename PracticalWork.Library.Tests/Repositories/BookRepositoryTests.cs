@@ -215,8 +215,8 @@ public class BookRepositoryTests : IDisposable
         var books = await _repository.GetBooks(BookStatus.Available, BookCategory.ScientificBook, _testAuthor, 1, 10);
 
         // Assert
-        Assert.Single(books);
-        Assert.Equal(_scientificBookId, books.First().Id);
+        Assert.Single(books.Items);
+        Assert.Equal(_scientificBookId, books.Items.First().Id);
     }
     
     [Fact]
@@ -235,6 +235,6 @@ public class BookRepositoryTests : IDisposable
         var books = await _repository.GetBooks(BookStatus.Available, BookCategory.ScientificBook, _testAuthor, 2, 2);
 
         // Assert
-        Assert.Equal(2, books.Count);
+        Assert.Equal(2, books.Items.Count);
     }
 }

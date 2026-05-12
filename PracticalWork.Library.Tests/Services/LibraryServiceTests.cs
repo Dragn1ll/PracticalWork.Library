@@ -104,7 +104,11 @@ public class LibraryServiceTests
     {
         // Arrange
         var dto = new GetLibraryBooksDto(BookCategory.FictionBook, "Author", true, 1, 10);
-        var dbBooks = new List<LibraryBookDto> { new LibraryBookDto("DB Book", new List<string>(), "", 2020) };
+        var dbBooks = new PagedListDto<LibraryBookDto>(
+            new List<LibraryBookDto> { new LibraryBookDto("DB Book", new List<string>(), "", 2020) },
+            dto.Page,
+            dto.PageSize,
+            0);
     
         var cacheKey = $"library:books:{HashCode.Combine(dto.Category, dto.Author, dto.AvailableOnly)}:{dto.Page}:{dto.PageSize}";
 
