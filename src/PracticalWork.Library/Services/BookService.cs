@@ -109,20 +109,20 @@ public sealed class BookService : IBookService
     }
 
     /// <inheritdoc cref="IBookService.GetBooks"/>
-    public async Task<IList<BookListDto>> GetBooks(GetBookListDto getBookList)
+    public async Task<PagedListDto<BookListDto>> GetBooks(GetBookListDto getBookList)
     {
         try
         {
             var cacheKey = $"books:list:{HashCode.Combine(getBookList.Status, getBookList.Category, 
                 getBookList.Author)}:{getBookList.Page}:{getBookList.PageSize}";
-            var cache = await _redisService.GetAsync<IList<BookListDto>>(cacheKey);
+            var cache = await _redisService.GetAsync<PagedListDto<BookListDto>>(cacheKey);
             
             if (cache == null)
             {
-                var books = await _bookRepository.GetBooks(getBookList.Status, getBookList.Category, 
+                var pagedBookList = await _bookRepository.GetBooks(getBookList.Status, getBookList.Category, 
                     getBookList.Author, getBookList.Page, getBookList.PageSize);
 
-                foreach (var book in books)
+                foreach (var book in pagedBookList.Items)
                 {
                     if (!string.IsNullOrWhiteSpace(book.CoverImagePath))
                     {
@@ -130,8 +130,8 @@ public sealed class BookService : IBookService
                     }
                 }
                 
-                await _redisService.SetAsync(cacheKey, books, TimeSpan.FromMinutes(10));
-                return books;
+                await _redisService.SetAsync(cacheKey, pagedBookList, TimeSpan.FromMinutes(10));
+                return pagedBookList;
             }
             
             return cache;

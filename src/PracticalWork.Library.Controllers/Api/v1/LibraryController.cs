@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Contracts.v1.Books.Response;
 using PracticalWork.Library.Contracts.v1.Library.Requests;
 using PracticalWork.Library.Contracts.v1.Library.Response;
 using PracticalWork.Library.Contracts.v1.Reader.Response;
@@ -43,7 +44,13 @@ public class LibraryController : Controller
     {
         var result = await _libraryService.GetLibraryBooks(request.ToGetLibraryBooksDto());
         
-        return Ok(result.Select(lb => lb.ToLibraryBookResponse()).ToList());
+        return Ok(new PagedListResponse<LibraryBookResponse>(
+            result.Items.Select(bl => bl.ToLibraryBookResponse()).ToList(),
+            result.Page,
+            result.PageSize,
+            result.TotalCount,
+            result.TotalPages
+        ));
     }
 
     /// <summary>Возврат книги</summary>

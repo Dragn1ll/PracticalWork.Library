@@ -37,7 +37,7 @@ public interface IBookService
     /// </summary>
     /// <param name="getBookList">Фильтры + пагинация</param>
     /// <returns>Список книг</returns>
-    Task<IList<BookListDto>> GetBooks(GetBookListDto getBookList);
+    Task<PagedListDto<BookListDto>> GetBooks(GetBookListDto getBookList);
 
     /// <summary>
     /// Добавление деталей книги

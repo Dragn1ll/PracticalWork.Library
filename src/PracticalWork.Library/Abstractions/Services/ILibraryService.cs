@@ -22,7 +22,7 @@ public interface ILibraryService
     /// </summary>
     /// <param name="getLibraryBooksDto">Фильтры + пагинация</param>
     /// <returns>Список книг</returns>
-    Task<IList<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto);
+    Task<PagedListDto<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto);
     
     /// <summary>
     /// Возврат книги

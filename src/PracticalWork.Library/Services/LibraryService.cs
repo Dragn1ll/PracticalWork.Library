@@ -64,13 +64,13 @@ public sealed class LibraryService : ILibraryService
     }
 
     /// <inheritdoc cref="ILibraryService.GetLibraryBooks"/>
-    public async Task<IList<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto)
+    public async Task<PagedListDto<LibraryBookDto>> GetLibraryBooks(GetLibraryBooksDto getLibraryBooksDto)
     {
         try
         {
             var cacheKey = $"library:books:{HashCode.Combine(getLibraryBooksDto.Category, getLibraryBooksDto.Author, 
                 getLibraryBooksDto.AvailableOnly)}:{getLibraryBooksDto.Page}:{getLibraryBooksDto.PageSize}";
-            var cache = await _redisService.GetAsync<IList<LibraryBookDto>>(cacheKey);
+            var cache = await _redisService.GetAsync<PagedListDto<LibraryBookDto>>(cacheKey);
 
             if (cache == null)
             {

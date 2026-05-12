@@ -81,7 +81,7 @@ public class LibraryRepository : ILibraryRepository
     }
     
     /// <inheritdoc cref="ILibraryRepository.GetLibraryBooks"/>
-    public async Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
+    public async Task<PagedListDto<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, 
         int page, int pageSize)
     {
         var books = GetBookCategoryData(category);
@@ -93,10 +93,10 @@ public class LibraryRepository : ILibraryRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        
-        return entities.Select(e =>
+
+        var items = entities.Select(e =>
             {
-                var lastIssuance = e.IssuanceRecords.LastOrDefault(ir => 
+                var lastIssuance = e.IssuanceRecords.LastOrDefault(ir =>
                     ir.Status == BookIssueStatus.Issued);
 
                 if (lastIssuance == null)
@@ -108,6 +108,13 @@ public class LibraryRepository : ILibraryRepository
                     lastIssuance.BorrowDate, lastIssuance.DueDate);
             })
             .ToList();
+        
+        return new PagedListDto<LibraryBookDto>(
+            items,
+            page,
+            pageSize,
+            entities.Count
+        );
     }
     
     /// <inheritdoc cref="ILibraryRepository.GetBookIdByTitle"/>

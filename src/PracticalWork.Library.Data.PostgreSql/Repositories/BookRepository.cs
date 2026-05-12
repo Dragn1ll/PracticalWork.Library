@@ -68,20 +68,28 @@ public sealed class BookRepository : IBookRepository
     }
 
     /// <inheritdoc cref="IBookRepository.GetBooks"/>
-    public async Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
+    public async Task<PagedListDto<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, 
         int page, int pageSize)
     {
         var books = GetBookCategoryData(category);
         var entities = await books.AsNoTracking()
             .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
                         && b.Status == status)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
             .ToListAsync();
 
-        return entities.Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, 
-                e.Year, e.CoverImagePath))
+        var items = entities
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, e.Year,
+                e.CoverImagePath))
             .ToList();
+        
+        return new PagedListDto<BookListDto>(
+            items,
+            page,
+            pageSize,
+            entities.Count
+            );
     }
 
     /// <inheritdoc cref="IBookRepository.UpdateBook"/>

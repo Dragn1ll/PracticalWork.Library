@@ -68,7 +68,13 @@ public class BooksController : Controller
     {
         var result = await _bookService.GetBooks(request.ToGetBookListDto());
 
-        return Ok(result.Select(bl => bl.ToBookListResponse()).ToList());
+        return Ok(new PagedListResponse<BookListResponse>(
+            result.Items.Select(bl => bl.ToBookListResponse()).ToList(),
+            result.Page,
+            result.PageSize,
+            result.TotalCount,
+            result.TotalPages
+            ));
     }
     
     /// <summary>Добавление деталей книг</summary>

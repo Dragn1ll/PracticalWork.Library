@@ -3,11 +3,11 @@ namespace PracticalWork.Library.Dto.Output;
 /// <summary>
 /// Список данных с информацией о пагинации
 /// </summary>
-/// <typeparam name="T">Данные для отправки пользователю</typeparam>
+/// <typeparam name="T">Данные для отправки</typeparam>
 public class PagedListDto<T>
 {
     /// <summary>Список данных</summary>
-    public IEnumerable<T> Items { get; set; } = [];
+    public IList<T> Items { get; set; } = [];
 
     /// <summary>Номер страницы</summary>
     public int Page { get; set; }
@@ -21,4 +21,12 @@ public class PagedListDto<T>
     /// <summary>Количество страниц</summary>
     public int TotalPages =>
         (int)Math.Ceiling((double)TotalCount / PageSize);
+
+    public PagedListDto(IList<T> items, int page, int pageSize, int totalCount)
+    {
+        Items = items;
+        Page = page;
+        PageSize = pageSize;
+        TotalCount = totalCount;
+    }
 }
