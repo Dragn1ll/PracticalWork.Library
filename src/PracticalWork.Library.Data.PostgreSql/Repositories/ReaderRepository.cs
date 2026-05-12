@@ -32,7 +32,8 @@ public class ReaderRepository : IReaderRepository
             FullName = reader.FullName,
             PhoneNumber = reader.PhoneNumber,
             ExpiryDate = reader.ExpiryDate,
-            IsActive = reader.IsActive
+            IsActive = reader.IsActive,
+            Email = reader.Email
         };
         
         _appDbContext.Add(entity);
@@ -52,7 +53,8 @@ public class ReaderRepository : IReaderRepository
             FullName = entity.FullName,
             PhoneNumber = entity.PhoneNumber,
             ExpiryDate = entity.ExpiryDate,
-            IsActive = entity.IsActive
+            IsActive = entity.IsActive,
+            Email = entity.Email
         };
     }
 
@@ -83,6 +85,7 @@ public class ReaderRepository : IReaderRepository
         entity.PhoneNumber = reader.PhoneNumber;
         entity.ExpiryDate = reader.ExpiryDate;
         entity.IsActive = reader.IsActive;
+        entity.Email = reader.Email;
         
         _appDbContext.Update(entity);
         await _appDbContext.SaveChangesAsync();
