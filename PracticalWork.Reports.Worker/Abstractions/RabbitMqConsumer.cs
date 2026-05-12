@@ -40,15 +40,34 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
         _channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
         var consumer = new AsyncEventingBasicConsumer(_channel);
 
-        consumer.ReceivedAsync += async (model, ea) =>
+        consumer.ReceivedAsync += async (_, ea) =>
         {
-            await DequeueMessageAsync(ea, queueName);
+            try
+            {
+                await DequeueMessageAsync(ea, queueName);
+                
+                await _channel.BasicAckAsync(
+                    deliveryTag: ea.DeliveryTag,
+                    multiple: false, 
+                    cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Logger.LogError("Произошла ошибка при обработке сообщения: {exception}", exception.Message);
+                
+                await _channel.BasicNackAsync(
+                    deliveryTag: ea.DeliveryTag,
+                    multiple: false,
+                    requeue: true, 
+                    cancellationToken: cancellationToken);
+            }
         };
         
         _consumerTag = await _channel.BasicConsumeAsync(
             queue: queueName,
-            autoAck: true,   
-            consumer: consumer, cancellationToken: cancellationToken);
+            autoAck: false,   
+            consumer: consumer, 
+            cancellationToken: cancellationToken);
             
         Logger.LogInformation("Начато потребление очереди: {QueueName}", queueName);
     }
@@ -78,6 +97,7 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
             throw new ArgumentNullException();
         }
         await ProcessMessageAsync(messageObject);
+        
         Logger.LogInformation("Сообщение обработано успешно");
     }
     
