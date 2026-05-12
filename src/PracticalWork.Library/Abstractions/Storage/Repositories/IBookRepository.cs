@@ -32,7 +32,7 @@ public interface IBookRepository
     /// <param name="page">Номер страницы</param>
     /// <param name="pageSize">Размер страниц</param>
     /// <returns>Список книг</returns>
-    Task<IList<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
+    Task<PagedListDto<BookListDto>> GetBooks(BookStatus status, BookCategory category, string author, int page, int pageSize);
     
     /// <summary>
     /// Обновить данные книги

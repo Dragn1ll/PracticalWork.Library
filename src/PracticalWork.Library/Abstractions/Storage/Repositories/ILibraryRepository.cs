@@ -37,9 +37,9 @@ public interface ILibraryRepository
     /// <param name="author">Актор книги</param>
     /// <param name="availableOnly">Доступна ли книга выдаче</param>
     /// <param name="page">Номер страницы</param>
-    /// <param name="pageSize">Размер страницв</param>
-    /// <returns></returns>
-    Task<IList<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, int page, 
+    /// <param name="pageSize">Размер страницы</param>
+    /// <returns>Список книг</returns>
+    Task<PagedListDto<LibraryBookDto>> GetLibraryBooks(BookCategory category, string author, bool availableOnly, int page, 
         int pageSize);
     
     /// <summary>
