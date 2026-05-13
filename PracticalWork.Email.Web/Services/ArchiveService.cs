@@ -64,7 +64,6 @@ public class ArchiveService : IArchiveService
                     continue;
                 }
 
-                // Перевод в статус Archived
                 var entity = await _dbContext.Books.FindAsync(book.Id);
                 if (entity == null) continue;
 
