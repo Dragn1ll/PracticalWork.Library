@@ -10,8 +10,7 @@ using PracticalWork.Library.SharedKernel.Enums;
 namespace PracticalWork.Email.Web.Jobs;
 
 /// <summary>
-/// Фоновая задача: автоматические напоминания о возврате книг.
-/// Ежедневно ищет выдачи с наступающим сроком возврата и отправляет email-напоминания читателям.
+/// Фоновая задача: автоматические напоминания о возврате книг
 /// </summary>
 public class ReturnReminderJob : ILibraryJob
 {
@@ -48,7 +47,6 @@ public class ReturnReminderJob : ILibraryJob
         var daysBeforeDue = _templateSettings.ReturnReminder.DaysBeforeDueDate;
         var targetDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(daysBeforeDue));
 
-        // Поиск всех активных выдач с подходящим сроком возврата
         var borrowsDueSoon = await (
             from borrow in _dbContext.BookBorrows
             join book in _dbContext.Books on borrow.BookId equals book.Id
@@ -66,7 +64,6 @@ public class ReturnReminderJob : ILibraryJob
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Пропуск если у читателя нет email
             if (string.IsNullOrWhiteSpace(item.Reader.Email))
             {
                 skippedCount++;
@@ -75,7 +72,6 @@ public class ReturnReminderJob : ILibraryJob
                 continue;
             }
 
-            // Проверка: не отправляли ли уже напоминание за последние 24 часа
             var wasSent = await _notificationLogRepository.WasReminderSentRecently(item.Borrow.Id, 24);
             if (wasSent)
             {

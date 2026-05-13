@@ -32,8 +32,6 @@ public class ArchiveService : IArchiveService
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var cutoffDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-yearsWithoutBorrow));
 
-        // Находим книги-кандидаты на архивацию:
-        // Статус Available, не выданы в данный момент, не выдавались более N лет или никогда не выдавались
         var candidateBooks = await _dbContext.Books
             .AsNoTracking()
             .Where(b => b.Status == BookStatus.Available)
@@ -50,7 +48,6 @@ public class ArchiveService : IArchiveService
         {
             try
             {
-                // Повторная проверка — не выдана ли книга сейчас
                 var isCurrentlyBorrowed = await _dbContext.BookBorrows
                     .AnyAsync(bb => bb.BookId == book.Id && bb.Status == BookIssueStatus.Issued);
 
@@ -74,7 +71,6 @@ public class ArchiveService : IArchiveService
                 entity.Status = BookStatus.Archived;
                 await _dbContext.SaveChangesAsync();
 
-                // Публикация события в RabbitMQ
                 var archivedEvent = new BookArchivedEvent(
                     book.Id,
                     book.Title,

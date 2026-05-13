@@ -6,8 +6,7 @@ using PracticalWork.Email.Web.Models;
 namespace PracticalWork.Email.Web.Jobs;
 
 /// <summary>
-/// Фоновая задача: еженедельный отчет для администрации.
-/// Каждый понедельник собирает статистику за предыдущую неделю, генерирует CSV и отправляет email.
+/// Фоновая задача: еженедельный отчет для администрации
 /// </summary>
 public class WeeklyReportJob : ILibraryJob
 {
@@ -45,7 +44,6 @@ public class WeeklyReportJob : ILibraryJob
             return;
         }
 
-        // Предыдущая неделя: понедельник — воскресенье
         var today = DateTime.UtcNow;
         var daysSinceLastMonday = ((int)today.DayOfWeek + 6) % 7;
         var previousMonday = today.Date.AddDays(-daysSinceLastMonday - 7);

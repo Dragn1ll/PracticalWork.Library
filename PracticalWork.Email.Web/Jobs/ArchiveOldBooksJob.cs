@@ -5,8 +5,7 @@ using PracticalWork.Email.Web.Configuration;
 namespace PracticalWork.Email.Web.Jobs;
 
 /// <summary>
-/// Фоновая задача: автоматическая архивация старых книг.
-/// Первого числа каждого месяца архивирует книги, не выдававшиеся более 3 лет.
+/// Фоновая задача: автоматическая архивация старых книг
 /// </summary>
 public class ArchiveOldBooksJob : ILibraryJob
 {

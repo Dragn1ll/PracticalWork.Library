@@ -26,25 +26,20 @@ public static class Entry
         this IServiceCollection services, 
         IConfiguration configuration)
     {
-        // Настройки
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<JobSettings>(configuration.GetSection("JobSettings"));
         services.Configure<ArchiveSettings>(configuration.GetSection("ArchiveSettings"));
         services.Configure<EmailTemplateSettings>(configuration.GetSection("EmailTemplateSettings"));
         services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
 
-        // Библиотечные сервисы
         services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();
 
-        // Email сервисы
         services.AddScoped<IEmailService, EmailService>();
         services.AddSingleton<IEmailTemplateService, EmailTemplateService>();
 
-        // Job сервисы
         services.AddScoped<IReportJobService, ReportJobService>();
         services.AddScoped<IArchiveService, ArchiveService>();
 
-        // Hangfire jobs
         services.AddScoped<ReturnReminderJob>();
         services.AddScoped<WeeklyReportJob>();
         services.AddScoped<ArchiveOldBooksJob>();
@@ -59,7 +54,6 @@ public static class Entry
         this IServiceCollection services, 
         IConfiguration configuration)
     {
-        // Библиотечная БД
         services.AddPostgreSqlStorage(cfg =>
         {
             var npgsqlDataSource = new NpgsqlDataSourceBuilder(
@@ -70,7 +64,6 @@ public static class Entry
             cfg.UseNpgsql(npgsqlDataSource);
         });
 
-        // БД отчетов
         services.AddReportPostgreSqlStorage(cfg =>
         {
             var npgsqlDataSource = new NpgsqlDataSourceBuilder(
@@ -81,10 +74,8 @@ public static class Entry
             cfg.UseNpgsql(npgsqlDataSource);
         });
 
-        // Кэш
         services.AddCache(configuration);
 
-        // MinIO
         services.AddMinioFileStorage(configuration);
 
         return services;

@@ -19,7 +19,6 @@ public static class HangfireExtensions
         var jobSettings = scope.ServiceProvider
             .GetRequiredService<IOptions<JobSettings>>().Value;
 
-        // Напоминания о возврате (ежедневно)
         if (jobSettings.Jobs.TryGetValue("ReturnReminder", out var reminderConfig))
         {
             RecurringJob.AddOrUpdate<ReturnReminderJob>(
@@ -32,7 +31,6 @@ public static class HangfireExtensions
                 });
         }
 
-        // Еженедельный отчет (каждый понедельник)
         if (jobSettings.Jobs.TryGetValue("WeeklyReport", out var reportConfig))
         {
             RecurringJob.AddOrUpdate<WeeklyReportJob>(
@@ -45,7 +43,6 @@ public static class HangfireExtensions
                 });
         }
 
-        // Архивация старых книг (1-е число месяца)
         if (jobSettings.Jobs.TryGetValue("ArchiveOldBooks", out var archiveConfig))
         {
             RecurringJob.AddOrUpdate<ArchiveOldBooksJob>(
