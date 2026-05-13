@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Hangfire.AspNetCore" />
+      <PackageReference Include="Hangfire.PostgreSql" />
+      <PackageReference Include="MailKit" />
+      <PackageReference Include="RazorLight" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
+      <ProjectReference Include="..\PracticalWork.Reports.Data.PostgreSql\PracticalWork.Reports.Data.PostgreSql.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Cache.Redis\PracticalWork.Library.Cache.Redis.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Contracts\PracticalWork.Library.Contracts.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Data.Minio\PracticalWork.Library.Data.Minio.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Data.PostgreSql\PracticalWork.Library.Data.PostgreSql.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library\PracticalWork.Library.csproj" />
+    </ItemGroup>
+
+</Project>
