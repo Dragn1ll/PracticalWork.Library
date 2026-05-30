@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Email.Web", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Library.Email", "PracticalWork.Library.Email\PracticalWork.Library.Email.csproj", "{61475166-BCFE-43B0-9FEE-7F15B257B9E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticalWork.Email.Tests", "PracticalWork.Email.Tests\PracticalWork.Email.Tests.csproj", "{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{61475166-BCFE-43B0-9FEE-7F15B257B9E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61475166-BCFE-43B0-9FEE-7F15B257B9E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61475166-BCFE-43B0-9FEE-7F15B257B9E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +145,7 @@ Global
 		{7F1BF665-9D82-4852-BB9D-6EFA67EF9144} = {7E366027-D18D-45C9-928C-D527C6271DC9}
 		{9C6042AE-3313-484D-9918-28FB0C65AEFD} = {7E366027-D18D-45C9-928C-D527C6271DC9}
 		{61475166-BCFE-43B0-9FEE-7F15B257B9E9} = {5EF1ADE2-5A1C-434E-83B7-32EFF5DF0A11}
+		{3F4B9BC6-6E1E-4395-8ECE-CCD72785AB82} = {B9247C0E-BEBD-4F12-B8B2-2BD81B412924}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C42A2C9B-25DC-4CF3-8FF1-E3CE64B080D6}
