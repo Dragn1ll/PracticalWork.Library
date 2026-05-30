@@ -17,8 +17,8 @@ public class NotificationLog
     /// <summary>Тема письма</summary>
     public string Subject { get; set; } = null!;
     
-    /// <summary>Статус отправки</summary>
-    public string Status { get; set; } = null!;
+    /// <summary>Отправлено ли уведомление</summary>
+    public bool IsSent { get; set; }
     
     /// <summary>Сообщение об ошибке</summary>
     public string ErrorMessage { get; set; }

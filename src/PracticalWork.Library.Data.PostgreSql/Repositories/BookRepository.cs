@@ -108,6 +108,23 @@ public sealed class BookRepository : IBookRepository
         _appDbContext.Update(entity);
         await _appDbContext.SaveChangesAsync();
     }
+
+    public async Task<IList<AvailableOldBookDto>> GetAvailableOldBooks(DateOnly cutoffDate, int page, int pageSize)
+    {
+        return await _appDbContext.Books
+            .Include(b => b.IssuanceRecords)
+            .Where(b => b.Status == BookStatus.Available &&
+                        (b.IssuanceRecords.Count == 0 ||
+                         b.IssuanceRecords.All(i => i.BorrowDate < cutoffDate)))
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(b => new AvailableOldBookDto
+            {
+                Id = b.Id,
+                Title = b.Title
+            })
+            .ToListAsync();
+    }
     
     private IQueryable<AbstractBookEntity> GetBookCategoryData(BookCategory category)
     {

@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
       <ProjectReference Include="..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
       <ProjectReference Include="..\PracticalWork.Reports.Data.PostgreSql\PracticalWork.Reports.Data.PostgreSql.csproj" />
       <ProjectReference Include="..\src\PracticalWork.Library.Cache.Redis\PracticalWork.Library.Cache.Redis.csproj" />
@@ -25,5 +26,14 @@
     
     <ItemGroup>
         <EmbeddedResource Include="resources\**\*" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="resources\ReturnReminder.cshtml" />
+      <_ContentIncludedByDefault Remove="resources\WeeklyReport.cshtml" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageVersion Update="Hangfire.AspNetCore" Version="1.8.23" />
     </ItemGroup>
 </Project>

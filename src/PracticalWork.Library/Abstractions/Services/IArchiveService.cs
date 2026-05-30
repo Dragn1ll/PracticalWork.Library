@@ -1,6 +1,6 @@
-using PracticalWork.Email.Web.Models;
+using PracticalWork.Library.Models;
 
-namespace PracticalWork.Email.Web.Abstractions;
+namespace PracticalWork.Library.Abstractions.Services;
 
 /// <summary>
 /// Сервис для автоматической архивации старых книг

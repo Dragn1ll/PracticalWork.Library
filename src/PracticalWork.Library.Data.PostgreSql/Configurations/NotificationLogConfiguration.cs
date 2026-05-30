@@ -21,7 +21,7 @@ internal sealed class NotificationLogConfiguration : EntityConfigurationBase<Not
             .HasMaxLength(500)
             .IsRequired();
 
-        builder.Property(p => p.Status)
+        builder.Property(p => p.IsSent)
             .HasMaxLength(50)
             .IsRequired();
 

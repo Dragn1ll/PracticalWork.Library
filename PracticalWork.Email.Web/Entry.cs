@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using PracticalWork.Email.Web.Abstractions;
-using PracticalWork.Email.Web.Configuration;
 using PracticalWork.Email.Web.Jobs;
-using PracticalWork.Email.Web.Services;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Cache.Redis;
 using PracticalWork.Library.Data.Minio;
@@ -26,15 +23,10 @@ public static class Entry
         this IServiceCollection services, 
         IConfiguration configuration)
     {
-        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.Configure<JobSettings>(configuration.GetSection("JobSettings"));
-        services.Configure<ArchiveSettings>(configuration.GetSection("ArchiveSettings"));
-        services.Configure<EmailTemplateSettings>(configuration.GetSection("EmailTemplateSettings"));
         services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
 
         services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();
 
-        services.AddScoped<IEmailService, EmailService>();
         services.AddSingleton<IEmailTemplateService, EmailTemplateService>();
 
         services.AddScoped<IReportJobService, ReportJobService>();

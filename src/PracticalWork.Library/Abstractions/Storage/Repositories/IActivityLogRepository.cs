@@ -1,3 +1,4 @@
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -24,4 +25,6 @@ public interface IActivityLogRepository
     /// <param name="pageSize">Размер страницы</param>
     Task<IEnumerable<ActivityLog>> GetAllActivityLogs(DateOnly? startDate, DateOnly? endDate, EventType eventType,
         int page = 1, int pageSize = 20);
+
+    Task<ActivityLogStatisticDto> GetStatisticByPeriod(DateTime startDate, DateTime endDate);
 }

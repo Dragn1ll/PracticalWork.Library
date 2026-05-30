@@ -10,9 +10,14 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="RabbitMQ.Client" />
+    <PackageReference Include="RazorLight" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
     <ProjectReference Include="..\..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\ReturnReminder.cshtml" />
+    <EmbeddedResource Include="resources\WeeklyReport.cshtml" />
   </ItemGroup>
 </Project>

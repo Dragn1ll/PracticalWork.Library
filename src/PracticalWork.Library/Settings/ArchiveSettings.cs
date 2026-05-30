@@ -1,4 +1,4 @@
-namespace PracticalWork.Email.Web.Configuration;
+namespace PracticalWork.Library.Settings;
 
 /// <summary>
 /// Настройки автоматической архивации старых книг

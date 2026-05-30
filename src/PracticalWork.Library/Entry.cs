@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.MessageBroker;
 using PracticalWork.Library.Services;
+using PracticalWork.Library.Settings;
 
 namespace PracticalWork.Library;
 
@@ -20,6 +21,10 @@ public static class Entry
         
         services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
         services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();
+        
+        services.Configure<JobSettings>(configuration.GetSection("JobSettings"));
+        services.Configure<ArchiveSettings>(configuration.GetSection("ArchiveSettings"));
+        services.Configure<EmailTemplateSettings>(configuration.GetSection("EmailTemplateSettings"));
 
         return services;
     }

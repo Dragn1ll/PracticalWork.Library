@@ -1,8 +1,9 @@
-using PracticalWork.Email.Web.Abstractions;
-using PracticalWork.Email.Web.Models;
+using Microsoft.Extensions.Logging;
+using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Models;
 using RazorLight;
 
-namespace PracticalWork.Email.Web.Services;
+namespace PracticalWork.Library.Services;
 
 /// <inheritdoc cref="IEmailTemplateService"/>
 public class EmailTemplateService : IEmailTemplateService
@@ -14,7 +15,7 @@ public class EmailTemplateService : IEmailTemplateService
     {
         _logger = logger;
         _engine = new RazorLightEngineBuilder()
-            .UseEmbeddedResourcesProject(typeof(EmailTemplateService).Assembly, "PracticalWork.Library.Email.resources")
+            .UseEmbeddedResourcesProject(typeof(EmailTemplateService).Assembly, "PracticalWork.Library.resources")
             .Build();
     }
 

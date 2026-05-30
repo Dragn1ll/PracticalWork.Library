@@ -24,7 +24,7 @@ public class NotificationLogRepository : INotificationLogRepository
             NotificationType = notificationLog.NotificationType,
             RecipientEmail = notificationLog.RecipientEmail,
             Subject = notificationLog.Subject,
-            Status = notificationLog.Status,
+            IsSent = notificationLog.IsSent,
             ErrorMessage = notificationLog.ErrorMessage
         };
         
@@ -41,7 +41,7 @@ public class NotificationLogRepository : INotificationLogRepository
             .AsNoTracking()
             .AnyAsync(n => n.BorrowId == borrowId 
                 && n.NotificationType == "ReturnReminder"
-                && n.Status == "Success"
+                && n.IsSent
                 && n.CreatedAt >= cutoff);
     }
 
@@ -68,7 +68,7 @@ public class NotificationLogRepository : INotificationLogRepository
             NotificationType = e.NotificationType,
             RecipientEmail = e.RecipientEmail,
             Subject = e.Subject,
-            Status = e.Status,
+            IsSent = e.IsSent,
             ErrorMessage = e.ErrorMessage,
             SentAt = e.CreatedAt
         });

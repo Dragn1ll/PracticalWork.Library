@@ -1,4 +1,4 @@
-namespace PracticalWork.Email.Web.Abstractions;
+namespace PracticalWork.Library.Abstractions.Jobs;
 
 /// <summary>
 /// Базовый интерфейс для всех фоновых задач библиотеки

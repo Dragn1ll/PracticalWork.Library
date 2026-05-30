@@ -1,7 +1,7 @@
 using Hangfire;
 using Microsoft.Extensions.Options;
-using PracticalWork.Email.Web.Configuration;
 using PracticalWork.Email.Web.Jobs;
+using PracticalWork.Library.Settings;
 
 namespace PracticalWork.Email.Web.Hangfire;
 

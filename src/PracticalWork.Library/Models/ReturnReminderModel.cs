@@ -1,4 +1,4 @@
-namespace PracticalWork.Email.Web.Models;
+namespace PracticalWork.Library.Models;
 
 /// <summary>
 /// Модель данных для шаблона напоминания о возврате книги

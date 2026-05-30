@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
-using PracticalWork.Email.Web.Abstractions;
-using PracticalWork.Email.Web.Configuration;
+using PracticalWork.Library.Abstractions.Jobs;
+using PracticalWork.Library.Abstractions.Services;
+using PracticalWork.Library.Settings;
 
 namespace PracticalWork.Email.Web.Jobs;
 
@@ -29,23 +30,18 @@ public class ArchiveOldBooksJob : ILibraryJob
     public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Начало выполнения задачи: {JobName}", JobName);
+        
+        var archiveResult = await _archiveService.ArchiveOldBooks(
+            _archiveSettings.YearsWithoutBorrow,
+            _archiveSettings.MaxBooksPerRun);
 
-        try
-        {
-            var result = await _archiveService.ArchiveOldBooks(
-                _archiveSettings.YearsWithoutBorrow,
-                _archiveSettings.MaxBooksPerRun);
-
-            _logger.LogInformation(
-                "Архивация завершена: обработано {Total}, заархивировано {Archived}, " +
-                "пропущено {Skipped}, ошибок {Errors}, время выполнения {Time}",
-                result.TotalProcessed, result.ArchivedCount, 
-                result.SkippedCount, result.ErrorCount, result.ExecutionTime);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Критическая ошибка при выполнении архивации");
-            throw;
-        }
+        _logger.LogInformation(
+            "Архивация завершена: " +
+            "обработано {Total}, " +
+            "заархивировано {Archived}, " +
+            "пропущено {Skipped}, " +
+            "время выполнения {Time}",
+            archiveResult.TotalProcessed, archiveResult.ArchivedCount, 
+            archiveResult.SkippedCount, archiveResult.ExecutionTime);
     }
 }

@@ -1,6 +1,4 @@
-using PracticalWork.Email.Web.Models;
-
-namespace PracticalWork.Email.Web.Abstractions;
+namespace PracticalWork.Library.Abstractions.Services;
 
 /// <summary>
 /// Сервис для работы с еженедельными отчетами
@@ -10,5 +8,5 @@ public interface IReportJobService
     /// <summary>
     /// Генерация еженедельного отчета за указанный период
     /// </summary>
-    Task<GeneratedReport> GenerateWeeklyReport(DateOnly startDate, DateOnly endDate);
+    Task GenerateWeeklyReport();
 }
