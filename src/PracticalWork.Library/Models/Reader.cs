@@ -16,7 +16,10 @@ public sealed class Reader
 
     /// <summary>Активность карточки</summary>
     public bool IsActive { get; set; }
-    
+
+    /// <summary>Электронная почта читателя</summary>
+    public string Email { get; set; }
+
     /// <summary>Проверка активности карточки</summary>
     public bool CanDoSomething() => IsActive && ExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
     

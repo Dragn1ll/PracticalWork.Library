@@ -55,4 +55,6 @@ public interface ILibraryRepository
     /// <param name="borrow">Обновлённая запись о выдаче книги</param>
     /// <returns></returns>
     Task UpdateBorrow(Borrow borrow);
+    
+    Task<IList<BorrowedIssuedBookInfoDto>> GetBorrowedIssuedBooksInfo(DateOnly targetDueDate);
 }

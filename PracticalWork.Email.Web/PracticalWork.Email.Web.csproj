@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Hangfire.AspNetCore" />
+      <PackageReference Include="Hangfire.PostgreSql" />
+      <PackageReference Include="MailKit" />
+      <PackageReference Include="RazorLight" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PracticalWork.Library.Email\PracticalWork.Library.Email.csproj" />
+      <ProjectReference Include="..\PracticalWork.Library.MessageBroker\PracticalWork.Library.MessageBroker.csproj" />
+      <ProjectReference Include="..\PracticalWork.Library.SharedKernel\PracticalWork.Library.SharedKernel.csproj" />
+      <ProjectReference Include="..\PracticalWork.Reports.Data.PostgreSql\PracticalWork.Reports.Data.PostgreSql.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Cache.Redis\PracticalWork.Library.Cache.Redis.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Contracts\PracticalWork.Library.Contracts.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Data.Minio\PracticalWork.Library.Data.Minio.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library.Data.PostgreSql\PracticalWork.Library.Data.PostgreSql.csproj" />
+      <ProjectReference Include="..\src\PracticalWork.Library\PracticalWork.Library.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="resources\**\*" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="resources\ReturnReminder.cshtml" />
+      <_ContentIncludedByDefault Remove="resources\WeeklyReport.cshtml" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageVersion Update="Hangfire.AspNetCore" Version="1.8.23" />
+    </ItemGroup>
+</Project>

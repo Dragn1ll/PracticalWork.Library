@@ -11,8 +11,12 @@ public sealed class BookBorrowEntity : EntityBase
     /// <summary>Идентификатор книги</summary>
     public Guid BookId { get; set; }
 
+    public AbstractBookEntity Book { get; set; }
+
     /// <summary>Идентификатор карточки читателя</summary>
     public Guid ReaderId { get; set; }
+
+    public ReaderEntity Reader { get; set; }
 
     /// <summary>Дата выдачи книги</summary>
     public DateOnly BorrowDate { get; set; }

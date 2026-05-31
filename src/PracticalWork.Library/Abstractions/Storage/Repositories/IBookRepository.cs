@@ -40,4 +40,13 @@ public interface IBookRepository
     /// <param name="bookId">Идентификатор книги</param>
     /// <param name="book">Книга</param>
     Task UpdateBook(Guid bookId, Book book);
+
+    /// <summary>
+    /// Получить список доступных книг до даты крайнего срока выдачи
+    /// </summary>
+    /// <param name="cutoffDate">Крайник срок выдачи книги</param>
+    /// <param name="page">Номер страницы</param>
+    /// <param name="pageSize">Размер страницы</param>
+    /// <returns>Список доступных книг по фильтрам</returns>
+    Task<IList<AvailableOldBookDto>> GetAvailableOldBooks(DateOnly cutoffDate, int page, int pageSize);
 }

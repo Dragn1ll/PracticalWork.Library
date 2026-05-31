@@ -139,7 +139,29 @@ public class LibraryRepository : ILibraryRepository
     
         await _appDbContext.SaveChangesAsync();
     }
-    
+
+    public async Task<IList<BorrowedIssuedBookInfoDto>> GetBorrowedIssuedBooksInfo(DateOnly targetDueDate)
+    {
+        return await _appDbContext.BookBorrows
+            .AsNoTracking()
+            .Include(b => b.Book)
+            .Include(b => b.Reader)
+            .Where(b => b.Status == BookIssueStatus.Issued &&
+                        b.ReturnDate == targetDueDate)
+            .Select(b => new BorrowedIssuedBookInfoDto
+            {
+                BookTitle = b.Book.Title,
+                BookAuthors = b.Book.Authors,
+                ReaderId = b.Reader.Id,
+                ReaderFullName = b.Reader.FullName,
+                ReaderEmail = b.Reader.Email,
+                BorrowId = b.Id,
+                BorrowDueDate = b.DueDate
+            })
+            .ToListAsync();
+
+    }
+
     private IQueryable<AbstractBookEntity> GetBookCategoryData(BookCategory category)
     {
         return category switch

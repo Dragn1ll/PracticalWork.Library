@@ -63,6 +63,13 @@ public abstract class RabbitMqConsumer<T> : IRabbitMqConsumer where T : BaseEven
             }
         };
         
+        await _channel.QueueDeclareAsync(
+            queue: queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken);
+        
         _consumerTag = await _channel.BasicConsumeAsync(
             queue: queueName,
             autoAck: false,   

@@ -19,6 +19,9 @@ public sealed class ReaderEntity : EntityBase
 
     /// <summary>Активность карточки</summary>
     public bool IsActive { get; set; }
+    
+    /// <summary>Электронная почта читателя</summary>
+    public string Email { get; set; }
 
     /// <summary>Записи о взятых книгах</summary>
     public ICollection<BookBorrowEntity> BorrowedRecords { get; set; }

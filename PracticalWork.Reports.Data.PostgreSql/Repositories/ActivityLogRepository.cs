@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Abstractions.Storage.Repositories;
+using PracticalWork.Library.Dto.Output;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 using PracticalWork.Reports.Data.PostgreSql.Entities;
@@ -49,5 +50,67 @@ public class ActivityLogRepository : IActivityLogRepository
                 EventDate = al.EventDate,
                 Metadata = al.Metadata
             });
+    }
+
+    public async Task<ActivityLogStatisticDto> GetStatisticByPeriod(DateTime startDate, DateTime endDate)
+    {
+        return new ActivityLogStatisticDto
+        {
+            NewBooksCount = await CountNewBooks(startDate, endDate),
+            NewReadersCount = await CountNewReaders(startDate, endDate),
+            BorrowedBooksCount = await CountBorrowedBooks(startDate, endDate),
+            ReturnedBooksCount = await CountReturnedBooks(startDate, endDate),
+            OverdueBooksCount = await CountOverdueBooks(startDate, endDate)
+        };
+    }
+
+    private async Task<int> CountNewBooks(DateTime startDate, DateTime endDate)
+    {
+        return await _context.ActivityLogs
+            .AsNoTracking()
+            .CountAsync(a => a.EventType == EventType.BookCreated 
+                             && a.EventDate >= startDate 
+                             && a.EventDate <= endDate);
+    }
+
+    private async Task<int> CountNewReaders(DateTime startDate, DateTime endDate)
+    {
+        return await _context.ActivityLogs
+            .AsNoTracking()
+            .CountAsync(a => a.EventType == EventType.ReaderCreated 
+                             && a.EventDate >= startDate 
+                             && a.EventDate <= endDate);
+    }
+
+    private async Task<int> CountBorrowedBooks(DateTime startDate, DateTime endDate)
+    {
+        return await _context.ActivityLogs
+            .AsNoTracking()
+            .CountAsync(a => a.EventType == EventType.BookBorrowed 
+                             && a.EventDate >= startDate 
+                             && a.EventDate <= endDate);
+    }
+
+    private async Task<int> CountReturnedBooks(DateTime startDate, DateTime endDate)
+    {
+        return await _context.ActivityLogs
+            .AsNoTracking()
+            .CountAsync(a => a.EventType == EventType.BookReturned 
+                             && a.EventDate >= startDate 
+                             && a.EventDate <= endDate);
+    }
+    
+    private async Task<int> CountOverdueBooks(DateTime startDate, DateTime endDate)
+    {
+        return await _context.ActivityLogs
+            .AsNoTracking()
+            .Where(a => a.EventType == EventType.BookBorrowed 
+                        && a.EventDate <= endDate)
+            .GroupBy(a => a.ExternalBookId)
+            .Select(g => new { BookId = g.Key, BorrowDate = g.Max(x => x.EventDate) })
+            .CountAsync(b => !_context.ActivityLogs
+                .Any(a => a.EventType == EventType.BookReturned 
+                          && a.ExternalBookId == b.BookId 
+                          && a.EventDate >= b.BorrowDate));
     }
 }
