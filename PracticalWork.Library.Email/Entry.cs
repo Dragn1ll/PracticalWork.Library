@@ -11,7 +11,7 @@ public static class Entry
     public static IServiceCollection AddEmail(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         serviceCollection.Configure<EmailOptions>(configuration
-            .GetSection("App:Email"));
+            .GetSection("EmailSettings"));
         
         serviceCollection.AddScoped<ISmtpClient>(s =>
         {
