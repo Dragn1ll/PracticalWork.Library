@@ -14,16 +14,21 @@ public class ReaderServiceTests
     private readonly Mock<IReaderRepository> _readerRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IRabbitMqProducer> _producerMock;
+    private readonly FakeTimeProvider _timeProvider;
     private readonly ReaderService _readerService;
+    
+    private static readonly DateTimeOffset FakeNow =
+        new(2025, 6, 15, 12, 0, 0, TimeSpan.Zero);
 
     public ReaderServiceTests()
     {
         _readerRepositoryMock = new Mock<IReaderRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _producerMock = new Mock<IRabbitMqProducer>();
+        _timeProvider = new FakeTimeProvider(FakeNow);
         
         _readerService = new ReaderService(_readerRepositoryMock.Object, _redisServiceMock.Object, 
-            _producerMock.Object);
+            _producerMock.Object, _timeProvider);
     }
 
     [Fact]

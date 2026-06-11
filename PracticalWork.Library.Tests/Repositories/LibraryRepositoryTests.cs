@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -124,9 +125,9 @@ public class LibraryRepositoryTests : IDisposable
     public async Task GetBorrowByBookId_ShouldThrowArgumentException_WhenNoActiveRecordFound()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBorrowByBookId(_returnedBookId));
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBorrowByBookId(_returnedBookId));
         
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBorrowByBookId(Guid.NewGuid()));
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBorrowByBookId(Guid.NewGuid()));
     }
 
     [Fact]
@@ -244,6 +245,6 @@ public class LibraryRepositoryTests : IDisposable
     public async Task GetBookIdByTitle_ShouldThrowArgumentException_WhenNotFound()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBookIdByTitle("Missing Title"));
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBookIdByTitle("Missing Title"));
     }
 }

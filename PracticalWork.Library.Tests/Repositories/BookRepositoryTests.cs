@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -168,7 +169,7 @@ public class BookRepositoryTests : IDisposable
     public async Task GetBookById_ShouldThrowArgumentException_WhenNotFound()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBookById(Guid.NewGuid()));
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBookById(Guid.NewGuid()));
     }
     
     [Fact]
@@ -205,7 +206,7 @@ public class BookRepositoryTests : IDisposable
         var book = new Book();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.UpdateBook(Guid.NewGuid(), book));
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.UpdateBook(Guid.NewGuid(), book));
     }
     
     [Fact]

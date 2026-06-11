@@ -12,25 +12,53 @@ public class EmailServiceTests
 {
     private readonly Mock<ISmtpClient> _smtpClientMock;
     private readonly EmailService _emailService;
- 
+
     private readonly EmailOptions _options = new()
     {
-        SenderName = "Тестовая библиотека",
+        SenderName  = "Тестовая библиотека",
         SenderEmail = "noreply@test.local",
-        SmtpServer = "localhost",
-        SmtpPort = 25,
-        UseSsl = false
+        SmtpServer  = "localhost",
+        SmtpPort    = 25,
+        UseSsl      = false
     };
- 
+
     public EmailServiceTests()
     {
         _smtpClientMock = new Mock<ISmtpClient>();
- 
-        _emailService = new global::PracticalWork.Library.Email.EmailService(
+
+        SetupDisconnectedClient();
+
+        _emailService = new EmailService(
             _smtpClientMock.Object,
             Options.Create(_options));
     }
- 
+    
+    private void SetupDisconnectedClient()
+    {
+        _smtpClientMock
+            .Setup(c => c.IsConnected)
+            .Returns(false);
+
+        _smtpClientMock
+            .Setup(c => c.ConnectAsync(
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _smtpClientMock
+            .Setup(c => c.AuthenticationMechanisms)
+            .Returns(new HashSet<string>());
+    }
+    
+    private void SetupConnectedClient()
+    {
+        _smtpClientMock
+            .Setup(c => c.IsConnected)
+            .Returns(true);
+    }
+
     [Fact]
     public async Task SendAsync_WhenSmtpSucceeds_ReturnsIsSuccessTrue()
     {
@@ -39,22 +67,24 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Тест",
-            Body = "<p>Тело</p>",
-            IsHtml = true
+            Body    = "<p>Тело</p>",
+            IsHtml  = true
         };
- 
+
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .ReturnsAsync("OK");
- 
+
         // Act
         var result = await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.True(result.IsSuccess);
     }
- 
+
     [Fact]
     public async Task SendAsync_WhenSmtpSucceeds_ResultMessageEqualsSmtpResponse()
     {
@@ -64,22 +94,24 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .ReturnsAsync(smtpResponse);
- 
+
         // Act
         var result = await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.Equal(smtpResponse, result.Message);
     }
- 
+
     [Fact]
     public async Task SendAsync_WhenSmtpThrows_ReturnsIsSuccessFalse()
     {
@@ -88,22 +120,24 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .ThrowsAsync(new InvalidOperationException("Соединение отклонено"));
- 
+
         // Act
         var result = await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.False(result.IsSuccess);
     }
- 
+
     [Fact]
     public async Task SendAsync_WhenSmtpThrows_ResultMessageContainsExceptionMessage()
     {
@@ -113,22 +147,50 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .ThrowsAsync(new InvalidOperationException(errorText));
- 
+
         // Act
         var result = await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.Contains(errorText, result.Message);
     }
- 
+
+    [Fact]
+    public async Task SendAsync_NeverThrowsException_ReturnsResultInstead()
+    {
+        // Arrange
+        var message = new EmailMessage
+        {
+            EmailTo = "reader@test.com",
+            Subject = "Тест",
+            Body    = "Текст",
+            IsHtml  = false
+        };
+
+        _smtpClientMock
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<ITransferProgress>()))
+            .ThrowsAsync(new Exception("Неожиданная ошибка SMTP"));
+
+        // Act
+        var ex = await Record.ExceptionAsync(() => _emailService.SendAsync(message));
+
+        // Assert
+        Assert.Null(ex);
+    }
+
     [Fact]
     public async Task SendAsync_WhenIsHtmlTrue_SendsMimeMessageWithHtmlBody()
     {
@@ -138,27 +200,28 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "HTML письмо",
-            Body = htmlBody,
-            IsHtml = true
+            Body    = htmlBody,
+            IsHtml  = true
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
-        var bodyText = capturedMime.HtmlBody ?? capturedMime.Body?.ToString();
-        Assert.Contains("h1", bodyText);
+        Assert.Contains("h1", capturedMime.HtmlBody ?? capturedMime.Body?.ToString() ?? "");
     }
- 
+
     [Fact]
     public async Task SendAsync_WhenIsHtmlFalse_SendsMimeMessageWithTextBody()
     {
@@ -168,26 +231,28 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Текстовое письмо",
-            Body = textBody,
-            IsHtml = false
+            Body    = textBody,
+            IsHtml  = false
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
         Assert.Contains(textBody, capturedMime.TextBody);
     }
- 
+
     [Fact]
     public async Task SendAsync_SetsFromAddressFromOptions()
     {
@@ -196,29 +261,31 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
         var fromAddress = capturedMime.From.Mailboxes.FirstOrDefault();
         Assert.NotNull(fromAddress);
         Assert.Equal(_options.SenderEmail, fromAddress.Address);
-        Assert.Equal(_options.SenderName, fromAddress.Name);
+        Assert.Equal(_options.SenderName,  fromAddress.Name);
     }
- 
+
     [Fact]
     public async Task SendAsync_SetsToAddressFromMessage()
     {
@@ -228,28 +295,30 @@ public class EmailServiceTests
         {
             EmailTo = recipientEmail,
             Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
         var toAddress = capturedMime.To.Mailboxes.FirstOrDefault();
         Assert.NotNull(toAddress);
         Assert.Equal(recipientEmail, toAddress.Address);
     }
- 
+
     [Fact]
     public async Task SendAsync_SetsSubjectFromMessage()
     {
@@ -259,78 +328,152 @@ public class EmailServiceTests
         {
             EmailTo = "reader@test.com",
             Subject = subject,
-            Body = "Текст",
-            IsHtml = false
+            Body    = "Текст",
+            IsHtml  = false
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
         Assert.Equal(subject, capturedMime.Subject);
     }
- 
-    [Fact]
-    public async Task SendAsync_NeverThrowsException_ReturnsResultInstead()
-    {
-        // Arrange
-        var message = new EmailMessage
-        {
-            EmailTo = "reader@test.com",
-            Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
-        };
- 
-        _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
-                It.IsAny<ITransferProgress>()))
-            .ThrowsAsync(new Exception("Неожиданная ошибка SMTP"));
- 
-        // Act
-        var ex = await Record.ExceptionAsync(() => _emailService.SendAsync(message));
- 
-        // Assert
-        Assert.Null(ex);
-    }
- 
+
     [Fact]
     public async Task SendAsync_WhenRecipientNameProvided_SetsDisplayNameInMimeMessage()
     {
         // Arrange
         var message = new EmailMessage
         {
-            EmailTo = "reader@test.com",
+            EmailTo       = "reader@test.com",
             RecipientName = "Иван Иванов",
-            Subject = "Тест",
-            Body = "Текст",
-            IsHtml = false
+            Subject       = "Тест",
+            Body          = "Текст",
+            IsHtml        = false
         };
- 
+
         MimeMessage? capturedMime = null;
         _smtpClientMock
-            .Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<CancellationToken>(),
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
                 It.IsAny<ITransferProgress>()))
             .Callback<MimeMessage, CancellationToken, ITransferProgress>(
                 (m, _, _) => capturedMime = m)
             .ReturnsAsync("OK");
- 
+
         // Act
         await _emailService.SendAsync(message);
- 
+
         // Assert
         Assert.NotNull(capturedMime);
         var toAddress = capturedMime.To.Mailboxes.FirstOrDefault();
         Assert.NotNull(toAddress);
         Assert.Equal("Иван Иванов", toAddress.Name);
+    }
+
+    [Fact]
+    public async Task SendAsync_WhenNotConnected_CallsConnectAsyncBeforeSend()
+    {
+        // Arrange
+        var message = new EmailMessage
+        {
+            EmailTo = "reader@test.com",
+            Subject = "Тест",
+            Body    = "Текст",
+            IsHtml  = false
+        };
+
+        _smtpClientMock
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<ITransferProgress>()))
+            .ReturnsAsync("OK");
+
+        // Act
+        await _emailService.SendAsync(message);
+
+        // Assert
+        _smtpClientMock.Verify(
+            c => c.ConnectAsync(
+                _options.SmtpServer,
+                _options.SmtpPort,
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SendAsync_WhenAlreadyConnected_DoesNotCallConnectAsync()
+    {
+        // Arrange
+        SetupConnectedClient();
+
+        var message = new EmailMessage
+        {
+            EmailTo = "reader@test.com",
+            Subject = "Тест",
+            Body    = "Текст",
+            IsHtml  = false
+        };
+
+        _smtpClientMock
+            .Setup(c => c.SendAsync(
+                It.IsAny<MimeMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<ITransferProgress>()))
+            .ReturnsAsync("OK");
+
+        // Act
+        await _emailService.SendAsync(message);
+
+        // Assert
+        _smtpClientMock.Verify(
+            c => c.ConnectAsync(
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SendAsync_WhenConnectFails_ReturnsIsSuccessFalse()
+    {
+        // Arrange
+        _smtpClientMock
+            .Setup(c => c.ConnectAsync(
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Хост недоступен"));
+
+        var message = new EmailMessage
+        {
+            EmailTo = "reader@test.com",
+            Subject = "Тест",
+            Body    = "Текст",
+            IsHtml  = false
+        };
+
+        // Act
+        var result = await _emailService.SendAsync(message);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Contains("Хост недоступен", result.Message);
     }
 }
