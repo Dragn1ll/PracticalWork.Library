@@ -15,13 +15,15 @@ public sealed class ReaderService : IReaderService
     private readonly IReaderRepository _readerRepository;
     private readonly IRedisService _redisService;
     private readonly IRabbitMqProducer _producer;
+    private readonly TimeProvider _timeProvider;
 
     public ReaderService(IReaderRepository readerRepository, IRedisService redisService, 
-        IRabbitMqProducer producer)
+        IRabbitMqProducer producer, TimeProvider timeProvider)
     {
         _readerRepository = readerRepository;
         _redisService = redisService;
         _producer = producer;
+        _timeProvider = timeProvider;
     }
 
     /// <inheritdoc cref="IReaderService.CreateReader"/>
@@ -33,7 +35,7 @@ public sealed class ReaderService : IReaderService
             var readerId = await _readerRepository.CreateReader(reader);
 
             await _producer.PublishEventAsync(new ReaderCreatedEvent(readerId, reader.FullName, reader.PhoneNumber, 
-                reader.ExpiryDate.ToDateTime(default), DateTime.UtcNow));
+                reader.ExpiryDate.ToDateTime(default), _timeProvider.GetUtcNow().UtcDateTime));
             
             return readerId;
         }
@@ -47,7 +49,7 @@ public sealed class ReaderService : IReaderService
     public async Task ExtendValidity(Guid readerId, DateOnly newExpiryDate)
     {
         
-        if (newExpiryDate < DateOnly.FromDateTime(DateTime.Now))
+        if (newExpiryDate < DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime))
         {
             throw new ClientErrorException("Дата продления не может быть раньше сегодняшней!");
         }
@@ -95,7 +97,8 @@ public sealed class ReaderService : IReaderService
             
             await _readerRepository.UpdateReader(readerId, reader);
 
-            await _producer.PublishEventAsync(new ReaderClosedEvent(readerId, reader.FullName, DateTime.UtcNow, ""));
+            await _producer.PublishEventAsync(
+                new ReaderClosedEvent(readerId, reader.FullName, _timeProvider.GetUtcNow().UtcDateTime, ""));
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {

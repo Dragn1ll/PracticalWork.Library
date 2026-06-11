@@ -6,12 +6,16 @@ namespace PracticalWork.Library.Email;
 public class EmailOptions
 {
     public string SmtpServer { get; set; } = "localhost";
-    
+
     public int SmtpPort { get; set; } = 25;
-    
+
     public bool UseSsl { get; set; } = false;
-    
+
     public string SenderName { get; set; } = "Библиотека";
-    
+
     public string SenderEmail { get; set; } = "noreply@library.local";
+
+    public string Username { get; set; } = string.Empty;
+
+    public string Password { get; set; } = string.Empty;
 }

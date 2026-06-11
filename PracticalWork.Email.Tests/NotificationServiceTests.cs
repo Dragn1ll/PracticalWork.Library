@@ -17,6 +17,7 @@ public class NotificationServiceTests
     private readonly Mock<IEmailTemplateService> _templateServiceMock;
     private readonly Mock<IEmailService> _emailServiceMock;
     private readonly INotificationService _notificationService;
+    private readonly FakeTimeProvider _timeProvider;
  
     private readonly EmailTemplateSettings _templateSettings = new()
     {
@@ -40,11 +41,11 @@ public class NotificationServiceTests
         _templateServiceMock = new Mock<IEmailTemplateService>();
         _emailServiceMock = new Mock<IEmailService>();
         Mock<ILogger<NotificationService>> loggerMock = new Mock<ILogger<NotificationService>>();
-        var timeProvider = new FakeTimeProvider(
+        _timeProvider = new FakeTimeProvider(
             new DateTimeOffset(2025, 6, 15, 10, 0, 0, TimeSpan.Zero));
 
         _notificationService = new NotificationService(
-            timeProvider,
+            _timeProvider,
             _libraryRepositoryMock.Object,
             Options.Create(_templateSettings),
             _notificationLogRepositoryMock.Object,
@@ -68,7 +69,7 @@ public class NotificationServiceTests
             ReaderEmail = email,
             BookTitle = bookTitle,
             BookAuthors = new List<string> { "Толстой" },
-            BorrowDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(dueDaysFromNow))
+            BorrowDueDate = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddDays(dueDaysFromNow))
         };
     }
  

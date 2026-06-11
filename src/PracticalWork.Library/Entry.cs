@@ -19,9 +19,6 @@ public static class Entry
         services.AddScoped<IReaderService, ReaderService>();
         services.AddScoped<IReportService, ReportService>();
         
-        services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
-        services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();
-        
         services.Configure<JobSettings>(configuration.GetSection("JobSettings"));
         services.Configure<ArchiveSettings>(configuration.GetSection("ArchiveSettings"));
         services.Configure<EmailTemplateSettings>(configuration.GetSection("EmailTemplateSettings"));

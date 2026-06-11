@@ -9,10 +9,12 @@ namespace PracticalWork.Library.Data.PostgreSql.Repositories;
 public class NotificationLogRepository : INotificationLogRepository
 {
     private readonly AppDbContext _appDbContext;
+    private readonly TimeProvider _timeProvider;
 
-    public NotificationLogRepository(AppDbContext appDbContext)
+    public NotificationLogRepository(AppDbContext appDbContext, TimeProvider timeProvider)
     {
         _appDbContext = appDbContext;
+        _timeProvider = timeProvider;
     }
     
     /// <inheritdoc cref="INotificationLogRepository.AddNotificationLog"/>
@@ -35,7 +37,7 @@ public class NotificationLogRepository : INotificationLogRepository
     /// <inheritdoc cref="INotificationLogRepository.WasReminderSentRecently"/>
     public async Task<bool> WasReminderSentRecently(Guid borrowId, int withinHours)
     {
-        var cutoff = DateTime.UtcNow.AddHours(-withinHours);
+        var cutoff = _timeProvider.GetUtcNow().DateTime.AddHours(-withinHours);
         
         return await _appDbContext.NotificationLogs
             .AsNoTracking()

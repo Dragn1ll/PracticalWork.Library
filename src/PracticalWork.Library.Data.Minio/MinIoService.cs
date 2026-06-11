@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
@@ -10,7 +9,7 @@ namespace PracticalWork.Library.Data.Minio;
 public class MinIoService : IMinIoService
 {
     private readonly IMinioClient _minioClient;
-    private readonly string _bucketName;
+    private readonly string _defaultBucketName;
 
     public MinIoService(IOptions<MinIoOptions> minioOptions)
     {
@@ -18,63 +17,65 @@ public class MinIoService : IMinIoService
             .WithEndpoint(minioOptions.Value.Endpoint)
             .WithCredentials(minioOptions.Value.AccessKey, minioOptions.Value.SecretKey)
             .Build();
-        _bucketName = minioOptions.Value.BucketName;
+        _defaultBucketName = minioOptions.Value.BucketName;
     }
 
     /// <inheritdoc cref="IMinIoService.UploadFileAsync"/>
-    public async Task UploadFileAsync(string fileName, Stream fileStream, string extension)
+    public async Task UploadFileAsync(
+        string fileName,
+        Stream fileStream,
+        string contentType,
+        string bucketName = null)
     {
-        await CheckBucketAsync();
-        
         if (string.IsNullOrWhiteSpace(fileName))
-        {
-            throw new ArgumentException("Пустое название файла!");
-        }
-
-        if (fileStream == null)
-        {
+            throw new ArgumentException("Пустое название файла!", nameof(fileName));
+        if (fileStream is null)
             throw new ArgumentNullException(nameof(fileStream));
-        }
+        if (string.IsNullOrWhiteSpace(contentType))
+            throw new ArgumentException("Пустой тип содержимого!", nameof(contentType));
 
-        if (string.IsNullOrWhiteSpace(extension))
-        {
-            throw new ArgumentException("Пустое название типа файла!");
-        }
-        
+        var target = bucketName ?? _defaultBucketName;
+        await EnsureBucketExistsAsync(target);
+
         var putObjectArgs = new PutObjectArgs()
-            .WithBucket(_bucketName)
+            .WithBucket(target)
             .WithObject(fileName)
             .WithStreamData(fileStream)
             .WithObjectSize(fileStream.Length)
-            .WithContentType(extension);
-        
+            .WithContentType(contentType);
+
         await _minioClient.PutObjectAsync(putObjectArgs);
     }
 
     /// <inheritdoc cref="IMinIoService.GetFileUrlAsync"/>
-    public async Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60, string bucketName = null)
+    public async Task<string> GetFileUrlAsync(
+        string fileName,
+        int expiryMinutes = 60,
+        string bucketName = null)
     {
-        await CheckBucketAsync();
-        
         if (string.IsNullOrWhiteSpace(fileName))
-        {
-            throw new ArgumentException("Пустое название файла!");
-        }
-        
+            throw new ArgumentException("Пустое название файла!", nameof(fileName));
+
+        var target = bucketName ?? _defaultBucketName;
+        await EnsureBucketExistsAsync(target);
+
         var presignedGetArgs = new PresignedGetObjectArgs()
-            .WithBucket(bucketName ?? _bucketName)
+            .WithBucket(target)
             .WithObject(fileName)
             .WithExpiry(expiryMinutes * 60);
-        
+
         return await _minioClient.PresignedGetObjectAsync(presignedGetArgs);
     }
 
-    private async Task CheckBucketAsync()
+    private async Task EnsureBucketExistsAsync(string bucket)
     {
-        var bucketExists = await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(_bucketName));
-        if (!bucketExists)
+        var exists = await _minioClient.BucketExistsAsync(
+            new BucketExistsArgs().WithBucket(bucket));
+
+        if (!exists)
         {
-            await _minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(_bucketName));
+            await _minioClient.MakeBucketAsync(
+                new MakeBucketArgs().WithBucket(bucket));
         }
     }
 }

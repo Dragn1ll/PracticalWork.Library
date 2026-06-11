@@ -24,6 +24,17 @@ public class EmailService : IEmailService
         EmailSendResult result = new();
         try
         {
+            if (!_client.IsConnected)
+            {
+                await _client.ConnectAsync(_options.SmtpServer, _options.SmtpPort, _options.UseSsl);
+                _client.AuthenticationMechanisms.Remove("XOAUTH2");
+
+                if (!string.IsNullOrEmpty(_options.Username))
+                {
+                    await _client.AuthenticateAsync(_options.Username, _options.Password);
+                }
+            }
+
             var mimeMessage = new MimeMessage();
             mimeMessage.From.Add(new MailboxAddress(_options.SenderName, _options.SenderEmail));
             mimeMessage.To.Add(new MailboxAddress(message.RecipientName, message.EmailTo));
@@ -42,8 +53,8 @@ public class EmailService : IEmailService
 
         return result;
     }
-    
-    private BodyBuilder GetBodyBuilder(EmailMessage message)
+
+    private static BodyBuilder GetBodyBuilder(EmailMessage message)
     {
         var builder = new BodyBuilder();
         if (message.IsHtml)

@@ -83,7 +83,7 @@ public class ArchiveService : IArchiveService
             book.Id,
             book.Title,
             $"Автоматическая архивация: книга не выдавалась более {yearsWithoutBorrow} лет",
-            DateTime.UtcNow);
+            _timeProvider.GetUtcNow().UtcDateTime);
 
         await _rabbitMqProducer.PublishEventAsync(archivedEvent);
     }

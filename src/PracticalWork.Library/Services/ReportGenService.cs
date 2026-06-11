@@ -14,14 +14,16 @@ public class ReportGenService : IReportGenService
     private readonly IActivityLogRepository _logRepository;
     private readonly IMinIoService _storage;
     private readonly IRedisService _cache;
+    private readonly TimeProvider _timeProvider;
 
     public ReportGenService(IReportRepository reportRepository, IActivityLogRepository logRepository,
-        IMinIoService storage, IRedisService cache)
+        IMinIoService storage, IRedisService cache, TimeProvider timeProvider)
     {
         _reportRepository = reportRepository;
         _logRepository = logRepository;
         _storage = storage;
         _cache = cache;
+        _timeProvider = timeProvider;
     }
 
     public async Task GenerateReport(Guid reportId, DateOnly periodFrom, DateOnly periodTo, EventType eventType)
@@ -32,7 +34,8 @@ public class ReportGenService : IReportGenService
         try
         {
             var stream = GetStream(logs);
-            var fileName = $"{DateTime.UtcNow.Year}/{DateTime.UtcNow.Month}/{reportId}.csv";
+            var fileName = $"{_timeProvider.GetUtcNow().UtcDateTime.Year}/" +
+                           $"{_timeProvider.GetUtcNow().UtcDateTime.Month}/{reportId}.csv";
             
             await _storage.UploadFileAsync(fileName, stream, "text/csv");
             

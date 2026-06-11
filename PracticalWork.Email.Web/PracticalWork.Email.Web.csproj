@@ -33,8 +33,4 @@
       <_ContentIncludedByDefault Remove="resources\ReturnReminder.cshtml" />
       <_ContentIncludedByDefault Remove="resources\WeeklyReport.cshtml" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <PackageVersion Update="Hangfire.AspNetCore" Version="1.8.23" />
-    </ItemGroup>
 </Project>

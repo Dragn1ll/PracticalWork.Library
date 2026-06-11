@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using PracticalWork.Email.Web.Models;
 using PracticalWork.Library.Abstractions.Jobs;
 using PracticalWork.Library.Abstractions.Services;
 using PracticalWork.Library.Models;

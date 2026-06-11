@@ -1,12 +1,19 @@
 using Hangfire;
 using Hangfire.PostgreSql;
 using PracticalWork.Email.Web;
+using PracticalWork.Email.Web.Configuration;
 using PracticalWork.Email.Web.Hangfire;
+using PracticalWork.Library.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 var services = builder.Services;
+
+services.AddMvc(opt =>
+{
+    opt.Filters.Add<DomainExceptionFilter<AppException>>();
+});
 
 services.AddEmailWorkerDatabases(configuration);
 

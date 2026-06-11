@@ -18,14 +18,16 @@ public sealed class BookService : IBookService
     private readonly IRedisService _redisService;
     private readonly IMinIoService _minIoService;
     private readonly IRabbitMqProducer _producer;
+    private readonly TimeProvider _timeProvider;
 
     public BookService(IBookRepository bookRepository, IRedisService redisService, IMinIoService minIoService,
-        IRabbitMqProducer producer)
+        IRabbitMqProducer producer, TimeProvider timeProvider)
     {
         _bookRepository = bookRepository;
         _redisService = redisService;
         _minIoService = minIoService;
         _producer = producer;
+        _timeProvider = timeProvider;
     }
 
     /// <inheritdoc cref="IBookService.CreateBook"/>
@@ -37,7 +39,7 @@ public sealed class BookService : IBookService
             var bookId = await _bookRepository.CreateBook(book);
 
             await _producer.PublishEventAsync(new BookCreatedEvent(bookId, book.Title, book.Category.ToString(), 
-                book.Authors, book.Year, DateTime.UtcNow));
+                book.Authors, book.Year, _timeProvider.GetUtcNow().UtcDateTime));
 
             return bookId;
         }
@@ -98,7 +100,8 @@ public sealed class BookService : IBookService
 
             await _bookRepository.UpdateBook(bookId, book);
 
-            await _producer.PublishEventAsync(new BookArchivedEvent(bookId, book.Title, "", DateTime.UtcNow));
+            await _producer.PublishEventAsync(
+                new BookArchivedEvent(bookId, book.Title, "", _timeProvider.GetUtcNow().UtcDateTime));
 
             return new ArchiveBookDto(bookId, book.Title);
         }
@@ -160,7 +163,8 @@ public sealed class BookService : IBookService
             }
 
             book.UpdateDetails(description,
-                $"{DateTime.Today.Year}/{DateTime.Today.Month}/{bookId}{extension}");
+                $"{_timeProvider.GetUtcNow().UtcDateTime.Year}/{_timeProvider.GetUtcNow().UtcDateTime.Month}" +
+                $"/{bookId}{extension}");
 
             await _minIoService.UploadFileAsync(book.CoverImagePath, coverImage.OpenReadStream(), 
                 coverImage.ContentType);

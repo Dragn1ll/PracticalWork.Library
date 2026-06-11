@@ -10,16 +10,22 @@ public interface IMinIoService
     /// </summary>
     /// <param name="fileName">Название файла</param>
     /// <param name="fileStream">Стрим файла</param>
-    /// <param name="extension">Тип расширения файла</param>
-    /// <returns></returns>
-    Task UploadFileAsync(string fileName, Stream fileStream, string extension);
+    /// <param name="contentType">MIME-тип файла</param>
+    /// <param name="bucketName">Имя бакета (null = бакет по умолчанию)</param>
+    Task UploadFileAsync(
+        string fileName,
+        Stream fileStream,
+        string contentType,
+        string bucketName = null);
 
     /// <summary>
-    /// Получить ссылку на файл
+    /// Получить presigned-ссылку на файл
     /// </summary>
     /// <param name="fileName">Название файла</param>
-    /// <param name="expiryMinutes">Продолжительность работы ссылки</param>
-    /// <param name="bucketName">Название бакета, если надо обратить в другой вместо стандартного</param>
-    /// <returns></returns>
-    Task<string> GetFileUrlAsync(string fileName, int expiryMinutes = 60, string bucketName = null);
+    /// <param name="expiryMinutes">Время жизни ссылки в минутах</param>
+    /// <param name="bucketName">Имя бакета (null = бакет по умолчанию)</param>
+    Task<string> GetFileUrlAsync(
+        string fileName,
+        int expiryMinutes = 60,
+        string bucketName = null);
 }
