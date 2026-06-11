@@ -49,4 +49,6 @@ public interface IBookRepository
     /// <param name="pageSize">Размер страницы</param>
     /// <returns>Список доступных книг по фильтрам</returns>
     Task<IList<AvailableOldBookDto>> GetAvailableOldBooks(DateOnly cutoffDate, int page, int pageSize);
+
+    public Task<int> SaveChangesAsync();
 }

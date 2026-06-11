@@ -13,20 +13,17 @@ namespace PracticalWork.Library.Services;
 public class ArchiveService : IArchiveService
 {
     private readonly IBookRepository _bookRepository;
-    private readonly IBookService _bookService;
     private readonly IRabbitMqProducer _rabbitMqProducer;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<ArchiveService> _logger;
 
     public ArchiveService(
         IBookRepository bookRepository,
-        IBookService bookService,
         IRabbitMqProducer rabbitMqProducer, 
         TimeProvider timeProvider,
         ILogger<ArchiveService> logger)
     {
         _bookRepository = bookRepository;
-        _bookService = bookService;
         _rabbitMqProducer = rabbitMqProducer;
         _timeProvider = timeProvider;
         _logger = logger;
@@ -56,9 +53,13 @@ public class ArchiveService : IArchiveService
         {
             try
             {
-                var archivedBook = await _bookService.ArchiveBook(book.Id);
+                var bookEntity = await _bookRepository.GetBookById(book.Id);
                 
-                await PublishArchivedBookEventAsync(archivedBook, yearsWithoutBorrow);
+                bookEntity.Archive();
+                
+                await _bookRepository.UpdateBook(book.Id, bookEntity);
+                
+                await PublishArchivedBookEventAsync(book, yearsWithoutBorrow);
                 
                 archiveResult.ArchivedCount++;
                 _logger.LogInformation("Книга '{Title}' (ID: {Id}) заархивирована", book.Title, book.Id);
@@ -72,12 +73,14 @@ public class ArchiveService : IArchiveService
             
             archiveResult.TotalProcessed++;
         }
+
+        await _bookRepository.SaveChangesAsync();
         
         archiveResult.SkipReasons = string.Join(";\n", skipReasons);
         return archiveResult;
     }
 
-    private async Task PublishArchivedBookEventAsync(ArchiveBookDto book, int yearsWithoutBorrow)
+    private async Task PublishArchivedBookEventAsync(AvailableOldBookDto book, int yearsWithoutBorrow)
     {
         var archivedEvent = new BookArchivedEvent(
             book.Id,

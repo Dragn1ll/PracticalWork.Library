@@ -35,8 +35,7 @@ public sealed class BookRepository : IBookRepository
         entity.Authors = book.Authors;
         entity.Status = book.Status;
 
-        _appDbContext.Add(entity);
-        await _appDbContext.SaveChangesAsync();
+        await _appDbContext.AddAsync(entity);
 
         return entity.Id;
     }
@@ -106,7 +105,6 @@ public sealed class BookRepository : IBookRepository
         entity.CoverImagePath = book.CoverImagePath;
         
         _appDbContext.Update(entity);
-        await _appDbContext.SaveChangesAsync();
     }
 
     public async Task<IList<AvailableOldBookDto>> GetAvailableOldBooks(DateOnly cutoffDate, int page, int pageSize)
@@ -125,6 +123,8 @@ public sealed class BookRepository : IBookRepository
             })
             .ToListAsync();
     }
+    
+    public async Task<int> SaveChangesAsync() => await _appDbContext.SaveChangesAsync();
     
     private IQueryable<AbstractBookEntity> GetBookCategoryData(BookCategory category)
     {

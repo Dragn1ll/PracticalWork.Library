@@ -37,6 +37,7 @@ public sealed class BookService : IBookService
         try
         {
             var bookId = await _bookRepository.CreateBook(book);
+            await _bookRepository.SaveChangesAsync();
 
             await _producer.PublishEventAsync(new BookCreatedEvent(bookId, book.Title, book.Category.ToString(), 
                 book.Authors, book.Year, _timeProvider.GetUtcNow().UtcDateTime));
@@ -69,6 +70,7 @@ public sealed class BookService : IBookService
             book.Year = updateBookDto.Year;
 
             await _bookRepository.UpdateBook(bookId, book);
+            await _bookRepository.SaveChangesAsync();
         }
         catch (Exception ex) when (ex is not ClientErrorException)
         {
@@ -99,6 +101,7 @@ public sealed class BookService : IBookService
             book.Archive();
 
             await _bookRepository.UpdateBook(bookId, book);
+            await _bookRepository.SaveChangesAsync();
 
             await _producer.PublishEventAsync(
                 new BookArchivedEvent(bookId, book.Title, "", _timeProvider.GetUtcNow().UtcDateTime));
@@ -170,6 +173,7 @@ public sealed class BookService : IBookService
                 coverImage.ContentType);
             
             await _bookRepository.UpdateBook(bookId, book);
+            await _bookRepository.SaveChangesAsync();
 
             await _redisService.RemoveAsync($"book:details:{bookId}");
             await InvalidationBookListCache(book);
