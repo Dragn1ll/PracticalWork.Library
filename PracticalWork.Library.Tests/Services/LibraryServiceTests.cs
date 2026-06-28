@@ -16,7 +16,6 @@ public class LibraryServiceTests
     private readonly Mock<ILibraryRepository> _libraryRepositoryMock;
     private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMinIoService> _minIoServiceMock;
-    private readonly Mock<IRabbitMqProducer> _producerMock;
     private readonly LibraryService _libraryService;
 
     public LibraryServiceTests()
@@ -24,13 +23,13 @@ public class LibraryServiceTests
         _libraryRepositoryMock = new Mock<ILibraryRepository>();
         _redisServiceMock = new Mock<IRedisService>();
         _minIoServiceMock = new Mock<IMinIoService>();
-        _producerMock = new Mock<IRabbitMqProducer>();
+        Mock<IRabbitMqProducer> producerMock = new Mock<IRabbitMqProducer>();
 
         _libraryService = new LibraryService(
             _libraryRepositoryMock.Object,
             _redisServiceMock.Object,
             _minIoServiceMock.Object,
-            _producerMock.Object
+            producerMock.Object
         );
     }
 
@@ -44,6 +43,19 @@ public class LibraryServiceTests
         var expectedBorrowDate = DateOnly.FromDateTime(DateTime.Now);
         var expectedDueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
 
+        var book = new Book
+        {
+            Title = "Borrowable Book",
+            Authors = new List<string> { "Author" },
+            Description = "Desc",
+            Year = 2020,
+            Category = BookCategory.FictionBook,
+            Status = BookStatus.Available,
+            CoverImagePath = "path",
+            IsArchived = false
+        };
+
+        _libraryRepositoryMock.Setup(r => r.GetBookById(bookId)).ReturnsAsync(book);
         _libraryRepositoryMock.Setup(r => r.CreateBorrow(It.IsAny<Borrow>()))
             .ReturnsAsync(expectedBorrowId);
 
@@ -70,6 +82,20 @@ public class LibraryServiceTests
         // Arrange
         var bookId = Guid.NewGuid();
         var readerId = Guid.NewGuid();
+
+        var book = new Book
+        {
+            Title = "Borrowable Book",
+            Authors = new List<string> { "Author" },
+            Description = "Desc",
+            Year = 2020,
+            Category = BookCategory.FictionBook,
+            Status = BookStatus.Available,
+            CoverImagePath = "path",
+            IsArchived = false
+        };
+
+        _libraryRepositoryMock.Setup(r => r.GetBookById(bookId)).ReturnsAsync(book);
         _libraryRepositoryMock.Setup(r => r.CreateBorrow(It.IsAny<Borrow>()))
             .ThrowsAsync(new InvalidOperationException("DB Error"));
 
@@ -87,9 +113,13 @@ public class LibraryServiceTests
         // Arrange
         var dto = new GetLibraryBooksDto(BookCategory.FictionBook, "Author", true, 1, 10);
         var cacheKey = $"library:books:{HashCode.Combine(dto.Category, dto.Author, dto.AvailableOnly)}:{dto.Page}:{dto.PageSize}";
-        var cachedBooks = new List<LibraryBookDto> { new LibraryBookDto("Cached Book", new List<string>(), "", 2020) };
+        var cachedBooks = new PagedListDto<LibraryBookDto>(
+            new List<LibraryBookDto> { new LibraryBookDto("Cached Book", new List<string>(), "", 2020) },
+            dto.Page,
+            dto.PageSize,
+            1);
 
-        _redisServiceMock.Setup(r => r.GetAsync<IList<LibraryBookDto>>(cacheKey)).ReturnsAsync(cachedBooks);
+        _redisServiceMock.Setup(r => r.GetAsync<PagedListDto<LibraryBookDto>>(cacheKey)).ReturnsAsync(cachedBooks);
 
         // Act
         var result = await _libraryService.GetLibraryBooks(dto);
@@ -126,7 +156,7 @@ public class LibraryServiceTests
     
         _redisServiceMock.Verify(r => r.SetAsync(
             cacheKey, 
-            It.IsAny<IList<LibraryBookDto>>(),
+            It.IsAny<PagedListDto<LibraryBookDto>>(),
             TimeSpan.FromMinutes(5)
         ), Times.Once);
     }
@@ -222,7 +252,7 @@ public class LibraryServiceTests
 
         _redisServiceMock.Setup(r => r.GetAsync<BookDetailsDto>(cacheKey)).ReturnsAsync((BookDetailsDto)null!);
         _libraryRepositoryMock.Setup(r => r.GetBookById(bookId)).ReturnsAsync(dbBook);
-        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(dbBook.CoverImagePath, It.IsAny<int>(), "")).ReturnsAsync(expectedUrl);
+        _minIoServiceMock.Setup(m => m.GetFileUrlAsync(dbBook.CoverImagePath, It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(expectedUrl);
 
         // Act
         var result = await _libraryService.GetBookDetailsById(bookId);

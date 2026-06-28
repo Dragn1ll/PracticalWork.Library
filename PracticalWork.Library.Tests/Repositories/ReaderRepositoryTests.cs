@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticalWork.Library.Data.PostgreSql;
 using PracticalWork.Library.Data.PostgreSql.Entities;
 using PracticalWork.Library.Data.PostgreSql.Repositories;
+using PracticalWork.Library.Exceptions;
 using PracticalWork.Library.Models;
 using PracticalWork.Library.SharedKernel.Enums;
 
@@ -119,7 +120,7 @@ public class ReaderRepositoryTests : IDisposable
         };
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _repository.CreateReader(duplicateReader));
+        var ex = await Assert.ThrowsAsync<ReaderAlreadyExistsException>(() => _repository.CreateReader(duplicateReader));
         Assert.Contains($"Читатель с таким номером телефона уже существует: {_uniquePhoneNumber}", ex.Message);
     }
     
@@ -140,7 +141,7 @@ public class ReaderRepositoryTests : IDisposable
     public async Task GetReaderById_ShouldThrowArgumentException_WhenNotFound()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetReaderById(Guid.NewGuid()));
+        await Assert.ThrowsAsync<ReaderNotFoundException>(() => _repository.GetReaderById(Guid.NewGuid()));
     }
 
     [Fact]
@@ -183,7 +184,7 @@ public class ReaderRepositoryTests : IDisposable
     public async Task GetBorrowedBooks_ShouldThrowArgumentException_WhenReaderNotFound()
     {
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _repository.GetBorrowedBooks(Guid.NewGuid()));
+        var ex = await Assert.ThrowsAsync<ReaderNotFoundException>(() => _repository.GetBorrowedBooks(Guid.NewGuid()));
         Assert.Contains("Отсутствует читатель", ex.Message);
     }
     
@@ -222,6 +223,6 @@ public class ReaderRepositoryTests : IDisposable
         var reader = new Reader();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.UpdateReader(Guid.NewGuid(), reader));
+        await Assert.ThrowsAsync<ReaderNotFoundException>(() => _repository.UpdateReader(Guid.NewGuid(), reader));
     }
 }

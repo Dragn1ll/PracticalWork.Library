@@ -20,6 +20,9 @@ public class LibraryRepositoryTests : IDisposable
     private readonly Guid _activeBookId = Guid.NewGuid();
     private readonly Guid _returnedBookId = Guid.NewGuid();
     private readonly Guid _activeReaderId = Guid.NewGuid();
+    private readonly Guid _scientificBookId = Guid.NewGuid();
+    private readonly Guid _availableEducationalBookId = Guid.NewGuid();
+    private readonly Guid _borrowedEducationalBookId = Guid.NewGuid();
 
     public LibraryRepositoryTests()
     {
@@ -72,6 +75,41 @@ public class LibraryRepositoryTests : IDisposable
                 Authors = new List<string> { _testAuthor, "Another Author" },
                 Status = BookStatus.Borrow,
                 Description = "Desc 1", Year = 2000, CoverImagePath = "path/1"
+            },
+            new ScientificBookEntity
+            {
+                Id = _scientificBookId,
+                Title = "Scientific Title",
+                Authors = new List<string> { _testAuthor },
+                Status = BookStatus.Available,
+                Description = "Scientific desc", Year = 2010, CoverImagePath = "path/2"
+            },
+            new EducationalBookEntity
+            {
+                Id = _availableEducationalBookId,
+                Title = "Available Book Title",
+                Authors = new List<string> { _testAuthor },
+                Status = BookStatus.Available,
+                Description = "Edu available", Year = 2020, CoverImagePath = "path/3"
+            },
+            new EducationalBookEntity
+            {
+                Id = _borrowedEducationalBookId,
+                Title = "Borrowed Book Title",
+                Authors = new List<string> { _testAuthor },
+                Status = BookStatus.Borrow,
+                Description = "Edu borrowed", Year = 2020, CoverImagePath = "path/4",
+                IssuanceRecords = new List<BookBorrowEntity>
+                {
+                    new BookBorrowEntity
+                    {
+                        BookId = _borrowedEducationalBookId,
+                        ReaderId = _readerId,
+                        BorrowDate = today.AddDays(-10),
+                        DueDate = today.AddDays(20),
+                        Status = BookIssueStatus.Issued
+                    }
+                }
             }
         });
         
@@ -125,9 +163,9 @@ public class LibraryRepositoryTests : IDisposable
     public async Task GetBorrowByBookId_ShouldThrowArgumentException_WhenNoActiveRecordFound()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBorrowByBookId(_returnedBookId));
+        await Assert.ThrowsAsync<BorrowNotFoundException>(() => _repository.GetBorrowByBookId(_returnedBookId));
         
-        await Assert.ThrowsAsync<BookNotFoundException>(() => _repository.GetBorrowByBookId(Guid.NewGuid()));
+        await Assert.ThrowsAsync<BorrowNotFoundException>(() => _repository.GetBorrowByBookId(Guid.NewGuid()));
     }
 
     [Fact]
@@ -168,7 +206,7 @@ public class LibraryRepositoryTests : IDisposable
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.UpdateBorrow(returnedBorrow));
+        await Assert.ThrowsAsync<BorrowNotFoundException>(() => _repository.UpdateBorrow(returnedBorrow));
     }
 
     [Fact]
@@ -183,7 +221,7 @@ public class LibraryRepositoryTests : IDisposable
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _repository.UpdateBorrow(wrongReaderBorrow));
+        await Assert.ThrowsAsync<BorrowNotFoundException>(() => _repository.UpdateBorrow(wrongReaderBorrow));
     }
     
     [Fact]

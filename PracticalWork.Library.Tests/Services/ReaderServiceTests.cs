@@ -86,15 +86,12 @@ public class ReaderServiceTests
     {
         // Arrange
         var readerId = Guid.NewGuid();
-        var pastDate = DateOnly.FromDateTime(DateTime.Now.Date).AddDays(-1);
+        var pastDate = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime).AddDays(-1);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ReaderServiceException>(() => _readerService.ExtendValidity(readerId, pastDate));
+        var ex = await Assert.ThrowsAsync<ClientErrorException>(() => _readerService.ExtendValidity(readerId, pastDate));
 
-        Assert.Equal("Ошибка продления карточки читателя!", ex.Message);
-        Assert.IsType<ArgumentException>(ex.InnerException);
-        Assert.Equal("Дата продления не может быть раньше сегодняшней!", ex.InnerException.Message);
-        _readerRepositoryMock.Verify(r => r.GetReaderById(It.IsAny<Guid>()), Times.Never);
+        Assert.Equal("Дата продления не может быть раньше сегодняшней!", ex.Message);
     }
 
     [Fact]
@@ -136,7 +133,7 @@ public class ReaderServiceTests
     {
         // Arrange
         var readerId = Guid.NewGuid();
-        var reader = new Reader { IsActive = false }; 
+        var reader = new Reader { IsActive = true }; 
         
         _readerRepositoryMock.Setup(r => r.GetReaderById(readerId)).ReturnsAsync(reader);
         _readerRepositoryMock.Setup(r => r.GetBorrowedBooks(readerId)).ReturnsAsync(new List<BorrowedBookDto>());
@@ -156,7 +153,7 @@ public class ReaderServiceTests
     {
         // Arrange
         var readerId = Guid.NewGuid();
-        var reader = new Reader { IsActive = true }; 
+        var reader = new Reader { IsActive = false }; 
         
         _readerRepositoryMock.Setup(r => r.GetReaderById(readerId)).ReturnsAsync(reader);
         _redisServiceMock.Setup(r => r.GetAsync<IList<BorrowedBookDto>>($"reader:books:{readerId}")).ReturnsAsync((IList<BorrowedBookDto>)null!);
@@ -168,7 +165,7 @@ public class ReaderServiceTests
         Assert.Equal("Ошибка закрытия карточки читателя!", ex.Message);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
         Assert.Equal("Карточка не может быть закрыта, так как уже закрыта!", ex.InnerException.Message);
-        Assert.True(reader.IsActive);
+        Assert.False(reader.IsActive);
     }
 
     [Fact]
@@ -184,9 +181,9 @@ public class ReaderServiceTests
         _redisServiceMock.Setup(r => r.GetAsync<IList<BorrowedBookDto>>($"reader:books:{readerId}")).ReturnsAsync((IList<BorrowedBookDto>)null!);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ReaderServiceException>(() => _readerService.CloseReader(readerId));
+        var ex = await Assert.ThrowsAsync<ClientErrorException>(() => _readerService.CloseReader(readerId));
         
-        Assert.Equal("Ошибка закрытия карточки читателя!", ex.Message);
+        Assert.StartsWith("У пользователя есть взятые книги:", ex.Message);
         
         _readerRepositoryMock.Verify(r => r.UpdateReader(It.IsAny<Guid>(), It.IsAny<Reader>()), Times.Never);
     }
