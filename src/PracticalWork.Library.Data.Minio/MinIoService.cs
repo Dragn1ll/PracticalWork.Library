@@ -11,6 +11,8 @@ public class MinIoService : IMinIoService
     private readonly IMinioClient _minioClient;
     private readonly string _defaultBucketName;
 
+    private const int SecondsPerMinute = 60;
+
     public MinIoService(IOptions<MinIoOptions> minioOptions)
     {
         _minioClient = new MinioClient()
@@ -62,7 +64,7 @@ public class MinIoService : IMinIoService
         var presignedGetArgs = new PresignedGetObjectArgs()
             .WithBucket(target)
             .WithObject(fileName)
-            .WithExpiry(expiryMinutes * 60);
+            .WithExpiry(expiryMinutes * SecondsPerMinute);
 
         return await _minioClient.PresignedGetObjectAsync(presignedGetArgs);
     }

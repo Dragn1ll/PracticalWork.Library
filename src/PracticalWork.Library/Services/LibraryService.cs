@@ -18,14 +18,20 @@ public sealed class LibraryService : ILibraryService
     private readonly IRedisService _redisService;
     private readonly IMinIoService _minIoService;
     private readonly IRabbitMqProducer _producer;
+    private readonly TimeProvider _timeProvider;
 
+    private const int DefaultBorrowDurationDays = 30;
+    private const int LibraryBooksCacheMinutes = 5;
+    private const int BookDetailsCacheMinutes = 30;
+    
     public LibraryService(ILibraryRepository libraryRepository, IRedisService redisService, IMinIoService minIoService,
-        IRabbitMqProducer producer)
+        IRabbitMqProducer producer, TimeProvider timeProvider)
     {
         _libraryRepository = libraryRepository;
         _redisService = redisService;
         _minIoService = minIoService;
         _producer = producer;
+        _timeProvider = timeProvider;
     }
     
     /// <inheritdoc cref="ILibraryService.BorrowBook"/>
@@ -43,8 +49,8 @@ public sealed class LibraryService : ILibraryService
             {
                 BookId = bookId,
                 ReaderId = readerId,
-                BorrowDate = DateOnly.FromDateTime(DateTime.Now),
-                DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30)),
+                BorrowDate = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime),
+                DueDate = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime.AddDays(DefaultBorrowDurationDays)),
                 Status = BookIssueStatus.Issued
             };
             
@@ -78,7 +84,7 @@ public sealed class LibraryService : ILibraryService
                     .GetLibraryBooks(getLibraryBooksDto.Category, getLibraryBooksDto.Author, getLibraryBooksDto.AvailableOnly, 
                         getLibraryBooksDto.Page, getLibraryBooksDto.PageSize);
                 
-                await _redisService.SetAsync(cacheKey, libraryBooks, TimeSpan.FromMinutes(5));
+                await _redisService.SetAsync(cacheKey, libraryBooks, TimeSpan.FromMinutes(LibraryBooksCacheMinutes));
                 
                 return libraryBooks;
             }
@@ -135,7 +141,7 @@ public sealed class LibraryService : ILibraryService
                 var bookDetails = new BookDetailsDto(bookId, book.Title, book.Authors, book.Description, book.Year, 
                     book.Category, book.Status, coverImagePath, book.IsArchived);
                 
-                await _redisService.SetAsync(cacheKey, bookDetails, TimeSpan.FromMinutes(30));
+                await _redisService.SetAsync(cacheKey, bookDetails, TimeSpan.FromMinutes(BookDetailsCacheMinutes));
 
                 return bookDetails;
             }

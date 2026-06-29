@@ -17,6 +17,8 @@ public sealed class ReaderService : IReaderService
     private readonly IRabbitMqProducer _producer;
     private readonly TimeProvider _timeProvider;
 
+    private const int BorrowedBooksCacheMinutes = 15;
+
     public ReaderService(IReaderRepository readerRepository, IRedisService redisService, 
         IRabbitMqProducer producer, TimeProvider timeProvider)
     {
@@ -117,7 +119,8 @@ public sealed class ReaderService : IReaderService
             if (cache == null)
             {
                 var borrowedBooks = await _readerRepository.GetBorrowedBooks(readerId);
-                await _redisService.SetAsync(cacheKey, borrowedBooks, TimeSpan.FromMinutes(15));
+                await _redisService.SetAsync(cacheKey, borrowedBooks, 
+                    TimeSpan.FromMinutes(BorrowedBooksCacheMinutes));
                 return borrowedBooks;
             }
             

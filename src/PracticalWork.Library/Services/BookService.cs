@@ -20,6 +20,9 @@ public sealed class BookService : IBookService
     private readonly IRabbitMqProducer _producer;
     private readonly TimeProvider _timeProvider;
 
+    private const long MaxCoverImageSizeBytes = 5 * 1024 * 1024;
+    private const int BookListCacheMinutes = 10;
+
     public BookService(IBookRepository bookRepository, IRedisService redisService, IMinIoService minIoService,
         IRabbitMqProducer producer, TimeProvider timeProvider)
     {
@@ -136,7 +139,7 @@ public sealed class BookService : IBookService
                     }
                 }
                 
-                await _redisService.SetAsync(cacheKey, pagedBookList, TimeSpan.FromMinutes(10));
+                await _redisService.SetAsync(cacheKey, pagedBookList, TimeSpan.FromMinutes(BookListCacheMinutes));
                 return pagedBookList;
             }
             
@@ -152,7 +155,7 @@ public sealed class BookService : IBookService
     public async Task CreateBookDetails(Guid bookId, IFormFile coverImage, string description)
     {
         var extension = Path.GetExtension(coverImage.FileName);
-        if (!IsValidImageExtension(extension) || coverImage.Length > 5 * 1024 * 1024)
+        if (!IsValidImageExtension(extension) || coverImage.Length > MaxCoverImageSizeBytes)
         {
             throw new ClientErrorException("Неверный формат изображения!");
         }

@@ -15,8 +15,10 @@ public class ReportService : IReportService
     private readonly IRabbitMqProducer _producer;
     private readonly IRedisService _cache;
     private readonly IMinIoService _storage;
+    
     private const string CacheKey = "reports:list";
     private const string BucketName = "reports";
+    private const int ReportListCacheTtlHours = 24;
 
     public ReportService(IActivityLogRepository activityLogRepository, IReportRepository reportRepository, 
         IRabbitMqProducer producer, IRedisService cache, IMinIoService storage)
@@ -84,7 +86,7 @@ public class ReportService : IReportService
             {
                 var reports = (await _reportRepository.GetGeneratedReports()).ToList();
                 
-                await _cache.SetAsync(CacheKey, reports, new TimeSpan(24, 0, 0));
+                await _cache.SetAsync(CacheKey, reports, TimeSpan.FromHours(ReportListCacheTtlHours));
                 
                 return reports;
             }
