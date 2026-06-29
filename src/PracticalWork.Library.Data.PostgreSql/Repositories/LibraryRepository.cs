@@ -85,16 +85,18 @@ public class LibraryRepository : ILibraryRepository
         int page, int pageSize)
     {
         var books = GetBookCategoryData(category);
-        var entities = await books.AsNoTracking()
+        var entities = books.AsNoTracking()
             .Include(b => b.IssuanceRecords)
             .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
                         && b.Status != BookStatus.Archived
-                        && (b.Status == BookStatus.Available || !availableOnly))
+                        && (b.Status == BookStatus.Available || !availableOnly));
+
+        var totalCount = await entities.CountAsync();
+        var items = entities
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
-
-        var items = entities.Select(e =>
+            .AsEnumerable()
+            .Select(e =>
             {
                 var lastIssuance = e.IssuanceRecords.LastOrDefault(ir =>
                     ir.Status == BookIssueStatus.Issued);
@@ -113,7 +115,7 @@ public class LibraryRepository : ILibraryRepository
             items,
             page,
             pageSize,
-            entities.Count
+            totalCount
         );
     }
     

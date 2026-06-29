@@ -71,23 +71,23 @@ public sealed class BookRepository : IBookRepository
         int page, int pageSize)
     {
         var books = GetBookCategoryData(category);
-        var entities = await books.AsNoTracking()
+        var entities = books.AsNoTracking()
             .Where(b => (b.Authors.Contains(author) || string.IsNullOrEmpty(author)) 
-                        && b.Status == status)
-            .ToListAsync();
+                        && b.Status == status);
 
-        var items = entities
+        var totalCount = await entities.CountAsync();
+        var items = await entities
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(e => new BookListDto(e.Id, e.Title, e.Authors, e.Description, e.Year,
                 e.CoverImagePath))
-            .ToList();
+            .ToListAsync();
         
         return new PagedListDto<BookListDto>(
             items,
             page,
             pageSize,
-            entities.Count
+            totalCount
             );
     }
 
